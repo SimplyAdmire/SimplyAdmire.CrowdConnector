@@ -1,0 +1,14 @@
+{
+    "name": "simplyadmire/crowdconnector",
+    "type": "typo3-flow-package",
+    "description": "Connector to authenticate against Atlassian Crowd",
+    "require": {
+        "typo3/flow": "*",
+        "typo3/ldap": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "SimplyAdmire\\CrowdConnector": "Classes"
+        }
+    }
+}
