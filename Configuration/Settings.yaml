@@ -15,6 +15,8 @@ TYPO3:
               password: '## DO NOT SET PASSWORD HERE! We do not want this in git! :) ##'
               applicationName: 'gemeenterijk'
               mode: ''
+              apiUrls:
+                authenticate: '/rest/usermanagement/1/authentication'
 
             entryPoint: WebRedirect
             entryPointOptions:
