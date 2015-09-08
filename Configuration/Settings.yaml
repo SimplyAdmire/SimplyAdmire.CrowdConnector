@@ -1,0 +1,25 @@
+TYPO3:
+  Neos:
+    typoScript:
+      autoInclude:
+        SimplyAdmire.CrowdConnector: TRUE
+  Flow:
+    security:
+      authentication:
+        authenticationStrategy: atLeastOneToken
+        providers:
+          CrowdProvider:
+            provider: SimplyAdmire\CrowdConnector\Provider\CrowdProvider
+            providerOptions:
+              crowdServerUrl: 'https://people.simplyadmire.com/crowd'
+              password: ''
+              applicationName: ''
+              mode: ''
+
+            entryPoint: WebRedirect
+            entryPointOptions:
+              routeValues:
+                '@package': SimplyAdmire.CrowdConnector
+                '@controller': Authentication
+                '@action': index
+                '@format': html
