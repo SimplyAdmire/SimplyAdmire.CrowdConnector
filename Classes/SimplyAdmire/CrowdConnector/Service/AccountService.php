@@ -12,6 +12,9 @@ use TYPO3\Party\Domain\Repository\PartyRepository;
 
 class AccountService {
 
+	const RESULT_CODE_SUCCESS = 200;
+	const RESULT_CODE_EXISTING_ACCOUNT = 300;
+
 	/**
 	 * @Flow\Inject
 	 * @var AccountRepository
@@ -45,7 +48,10 @@ class AccountService {
 	public function createCrowdAccount($username, $firstName, $lastName, $email, array $roles = []) {
 		$account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName($username, 'crowdProvider');
 		if ($account instanceof Account) {
-			return sprintf('User with username: %s already exists', $username);
+			return [
+				'message' => sprintf('User with username: %s already exists', $username),
+				'code' => self::RESULT_CODE_EXISTING_ACCOUNT
+			];
 		}
 		$account = new Account();
 		$account->setAccountIdentifier($username);
@@ -71,7 +77,10 @@ class AccountService {
 		$this->partyRepository->add($person);
 
 		$this->persistenceManager->persistAll();
-		return sprintf('User %s is created', $username);
+		return [
+			'message' => sprintf('User %s is created', $username),
+			'code' => self::RESULT_CODE_SUCCESS
+		];
 	}
 
 }

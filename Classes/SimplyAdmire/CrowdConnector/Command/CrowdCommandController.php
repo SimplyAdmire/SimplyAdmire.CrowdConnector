@@ -36,7 +36,10 @@ class CrowdCommandController extends CommandController {
 					$userDetails = $this->crowdApiService->getUserInformation($user['name']);
 					if ($userDetails['info']['http_code'] === 200 && $userDetails['user']['active'] === TRUE) {
 						$result = $this->accountService->createCrowdAccount($user['name'], $userDetails['user']['first-name'], $userDetails['user']['last-name'], $userDetails['user']['email']);
-						$this->outputLine($result);
+						$this->outputLine($result['message']);
+						if ($result['code'] === AccountService::RESULT_CODE_EXISTING_ACCOUNT) {
+							// TODO: update most likely
+						}
 					}
 				}
 			}
