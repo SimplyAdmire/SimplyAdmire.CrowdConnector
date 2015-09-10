@@ -12,8 +12,9 @@ use TYPO3\Party\Domain\Repository\PartyRepository;
 
 class AccountService {
 
-	const RESULT_CODE_SUCCESS = 200;
+	const RESULT_CODE_ACCOUNT_CREATED = 200;
 	const RESULT_CODE_EXISTING_ACCOUNT = 300;
+	const RESULT_CODE_ACCOUNT_UPDATED = 400;
 
 	/**
 	 * @Flow\Inject
@@ -81,7 +82,34 @@ class AccountService {
 		return [
 			'message' => sprintf('User %s is created', $username),
 			'account' => $account,
-			'code' => self::RESULT_CODE_SUCCESS
+			'code' => self::RESULT_CODE_ACCOUNT_CREATED
+		];
+	}
+
+	/**
+	 * Update a single user (account)
+	 *
+	 * @param Account $account
+	 * @param array $userDetails
+	 * @return array
+	 */
+	public function updateAccount(Account $account, array $userDetails) {
+		/** @var Person $person */
+		$person = $this->partyRepository->findOneHavingAccount($account);
+		$name = $person->getName();
+		$name->setFirstName($userDetails['user']['first-name']);
+		$name->setLastName($userDetails['user']['last-name']);
+		$email = $person->getPrimaryElectronicAddress();
+		$email->setIdentifier($userDetails['user']['email']);
+		$person->setName($name);
+		$person->setPrimaryElectronicAddress($email);
+		$this->partyRepository->update($person);
+		$this->persistenceManager->persistAll();
+
+		return [
+			'message' => sprintf('User: %s is updated', $account->getAccountIdentifier()),
+			'account' => $account,
+			'code' => self::RESULT_CODE_ACCOUNT_UPDATED
 		];
 	}
 
