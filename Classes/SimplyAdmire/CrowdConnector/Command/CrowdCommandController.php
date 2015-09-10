@@ -38,7 +38,9 @@ class CrowdCommandController extends CommandController {
 						$result = $this->accountService->createCrowdAccount($user['name'], $userDetails['user']['first-name'], $userDetails['user']['last-name'], $userDetails['user']['email']);
 						$this->outputLine($result['message']);
 						if ($result['code'] === AccountService::RESULT_CODE_EXISTING_ACCOUNT) {
-							// TODO: update most likely
+							$this->emitUserExists($result['account']);
+						} elseif ($result['code'] === AccountService::RESULT_CODE_SUCCESS) {
+							$this->emitNewUserCreated($result['account']);
 						}
 					}
 				}
@@ -46,6 +48,20 @@ class CrowdCommandController extends CommandController {
 		} else{
 			throw new CrowdSearchException(sprintf('Search result from crowd did not return a valid response, response code was: %s', $statusCode), 12389176891);
 		}
+	}
+
+	/**
+	 * @Flow\Signal
+	 * @param $account
+	 */
+	public function emitNewUserCreated($account) {
+	}
+
+	/**
+	 * @Flow\Signal
+	 * @param $account
+	 */
+	public function emitUserExists($account) {
 	}
 
 }

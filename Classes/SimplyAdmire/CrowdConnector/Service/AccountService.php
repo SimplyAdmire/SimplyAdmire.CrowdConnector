@@ -50,6 +50,7 @@ class AccountService {
 		if ($account instanceof Account) {
 			return [
 				'message' => sprintf('User with username: %s already exists', $username),
+				'account' => $account,
 				'code' => self::RESULT_CODE_EXISTING_ACCOUNT
 			];
 		}
@@ -79,6 +80,7 @@ class AccountService {
 		$this->persistenceManager->persistAll();
 		return [
 			'message' => sprintf('User %s is created', $username),
+			'account' => $account,
 			'code' => self::RESULT_CODE_SUCCESS
 		];
 	}
