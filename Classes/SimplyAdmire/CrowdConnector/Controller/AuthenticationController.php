@@ -29,6 +29,7 @@ class AuthenticationController extends AbstractAuthenticationController {
 	 * Sends a signal when authentication is successful or not
 	 * slots can be filled as desired
 	 *
+	 * @Flow\SkipCsrfProtection
 	 * @return void
 	 */
 	public function authenticateAction() {
@@ -48,9 +49,9 @@ class AuthenticationController extends AbstractAuthenticationController {
 
 	/**
 	 * @param ActionRequest|NULL $request
-	 * @return void
+	 * @return string
 	 */
-	public function onAuthenticationSuccess(ActionRequest $request = NULL) {
+	protected function onAuthenticationSuccess(ActionRequest $request = NULL) {
 		$this->emitAccountAuthenticationSuccess();
 	}
 
@@ -58,7 +59,7 @@ class AuthenticationController extends AbstractAuthenticationController {
 	 * @param AuthenticationRequiredException|NULL $exception
 	 * @return void
 	 */
-	public function onAuthenticationFailure(AuthenticationRequiredException $exception = NULL) {
+	protected function onAuthenticationFailure(AuthenticationRequiredException $exception = NULL) {
 		$this->flashMessageContainer->addMessage(new Error('Authentication failed!', ($exception === NULL ? 1347016771 : $exception->getCode())));
 		$this->emitAccountAuthenticationFailure();
 		$this->forward('login');

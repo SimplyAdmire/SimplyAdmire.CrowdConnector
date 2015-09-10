@@ -18,7 +18,9 @@
     '@controller': 'Authentication'
     '@action': 'authenticate'
     '@format': 'html'
-  appeendExceedingArguments: TRUE
+  httpMethods:
+    - 'POST'
+  appendExceedingArguments: TRUE
 
 -
   name: 'Logout Crowd user'

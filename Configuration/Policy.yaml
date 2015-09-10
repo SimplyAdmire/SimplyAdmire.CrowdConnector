@@ -9,3 +9,9 @@ roles:
       -
         privilegeTarget: 'SimplyAdmire_CrowdConnector_AuthenticationActions'
         permission: GRANT
+
+  'TYPO3.Flow:Anonymous':
+    privileges:
+      -
+        privilegeTarget: 'SimplyAdmire_CrowdConnector_AuthenticationActions'
+        permission: GRANT
