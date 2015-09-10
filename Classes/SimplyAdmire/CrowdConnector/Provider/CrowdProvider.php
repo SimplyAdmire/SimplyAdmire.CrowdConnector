@@ -90,7 +90,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		try {
 			$response = json_decode(curl_exec($ch), TRUE);
 			$info = curl_getinfo($ch);

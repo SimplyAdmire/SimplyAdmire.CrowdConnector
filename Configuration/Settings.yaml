@@ -17,6 +17,8 @@ TYPO3:
               mode: ''
               apiUrls:
                 authenticate: '/rest/usermanagement/1/authentication'
+                search: '/rest/usermanagement/1/search'
+                user: '/rest/usermanagement/1/user'
 
             entryPoint: WebRedirect
             entryPointOptions:
