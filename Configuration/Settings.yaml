@@ -8,12 +8,12 @@ TYPO3:
       authentication:
         authenticationStrategy: atLeastOneToken
         providers:
-          CrowdProvider:
+          crowdProvider:
             provider: SimplyAdmire\CrowdConnector\Provider\CrowdProvider
             providerOptions:
               crowdServerUrl: 'https://people.simplyadmire.com/crowd'
               password: '## DO NOT SET PASSWORD HERE! We do not want this in git! :) ##'
-              applicationName: 'gemeenterijk'
+              applicationName: ''
               mode: ''
               apiUrls:
                 authenticate: '/rest/usermanagement/1/authentication'

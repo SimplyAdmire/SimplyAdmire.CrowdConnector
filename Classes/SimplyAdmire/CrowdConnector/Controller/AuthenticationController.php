@@ -2,9 +2,11 @@
 namespace SimplyAdmire\CrowdConnector\Controller;
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Error\Error;
 use TYPO3\Flow\Mvc\ActionRequest;
 use TYPO3\Flow\Security\Authentication\AuthenticationManagerInterface;
 use TYPO3\Flow\Security\Authentication\Controller\AbstractAuthenticationController;
+use TYPO3\Flow\Security\Exception\AuthenticationRequiredException;
 
 class AuthenticationController extends AbstractAuthenticationController {
 
@@ -32,7 +34,11 @@ class AuthenticationController extends AbstractAuthenticationController {
 	public function authenticateAction() {
 		try {
 			$this->authenticationManager->authenticate();
-			$this->onAuthenticationSuccess();
+			if ($this->authenticationManager->isAuthenticated()) {
+				$this->onAuthenticationSuccess();
+			} else {
+				$this->onAuthenticationFailure();
+			}
 		} catch (\Exception $exception) {
 			$message = $exception->getMessage();
 			$this->systemLogger->log($message, LOG_AUTH);
@@ -49,10 +55,11 @@ class AuthenticationController extends AbstractAuthenticationController {
 	}
 
 	/**
-	 * @param ActionRequest|NULL $request
+	 * @param AuthenticationRequiredException|NULL $exception
 	 * @return void
 	 */
-	public function onAuthenticationFailure(ActionRequest $request = NULL) {
+	public function onAuthenticationFailure(AuthenticationRequiredException $exception = NULL) {
+		$this->flashMessageContainer->addMessage(new Error('Authentication failed!', ($exception === NULL ? 1347016771 : $exception->getCode())));
 		$this->emitAccountAuthenticationFailure();
 		$this->forward('login');
 	}

@@ -1,0 +1,30 @@
+-
+  name: 'Login'
+  uriPattern: 'login'
+  defaults:
+    '@package': 'SimplyAdmire.CrowdConnector'
+    '@controller': 'Authentication'
+    '@action': 'login'
+    '@format': 'html'
+  httpMethods:
+    - 'GET'
+  appendExceedingArguments: TRUE
+
+-
+  name: 'Authenticate Crowd user'
+  uriPattern: 'authenticate'
+  defaults:
+    '@package': 'SimplyAdmire.CrowdConnector'
+    '@controller': 'Authentication'
+    '@action': 'authenticate'
+    '@format': 'html'
+  appeendExceedingArguments: TRUE
+
+-
+  name: 'Logout Crowd user'
+  uriPattern: 'logout'
+  defaults:
+    '@package': 'SimplyAdmire.CrowdConnector'
+    '@controller': 'Authentication'
+    '@action': 'logout'
+    '@format': 'html'
