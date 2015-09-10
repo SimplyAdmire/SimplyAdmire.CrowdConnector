@@ -73,4 +73,36 @@ class CrowdApiService {
 		curl_close($ch);
 	}
 
+	/**
+	 * @param array $credentials
+	 * @return array
+	 */
+	public function getAuthenticationResponse(array $credentials) {
+		$uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'];
+		$data = json_encode(['value' => $credentials['password']]);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Accept: application/json',
+				'Content-Type: application/json'
+			]
+		);
+		curl_setopt($ch, CURLOPT_URL, $uri);
+		curl_setopt($ch, CURLOPT_USERPWD, $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password']);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		try {
+			$response = json_decode(curl_exec($ch), TRUE);
+			$info = curl_getinfo($ch);
+			return [
+				'response' => $response,
+				'info' => $info
+			];
+		} catch (\Exception $exception) {
+			$this->systemLogger->log($exception->getMessage(), LOG_WARNING);
+		}
+		curl_close($ch);
+	}
+
 }

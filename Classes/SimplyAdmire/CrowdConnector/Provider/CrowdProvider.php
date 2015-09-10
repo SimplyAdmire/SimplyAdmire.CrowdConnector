@@ -1,6 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Provider;
 
+use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
 use TYPO3\Flow\Http\Response;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 use TYPO3\Flow\Security\Account;
@@ -44,6 +45,12 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 	protected $systemLogger;
 
 	/**
+	 * @Flow\Inject
+	 * @var CrowdApiService
+	 */
+	protected $crowdApiService;
+
+	/**
 	 * @param TokenInterface $authenticationToken
 	 * @return void
 	 */
@@ -51,7 +58,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 		$credentials = $authenticationToken->getCredentials();
 		if (is_array($credentials) && isset($credentials['username']) && isset($credentials['password'])) {
 			$providerName = $this->name;
-			$authenticationResponse = $this->getAuthenticationResponse($credentials);
+			$authenticationResponse = $this->crowdApiService->getAuthenticationResponse($credentials);
 
 			$statusCode = $authenticationResponse['info']['http_code'];
 
@@ -70,38 +77,6 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 		} else {
 			$authenticationToken->setAuthenticationStatus(TokenInterface::NO_CREDENTIALS_GIVEN);
 		}
-	}
-
-	/**
-	 * @param array $credentials
-	 * @return Response
-	 */
-	protected function getAuthenticationResponse(array $credentials) {
-		$uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'];
-		$data = json_encode(['value' => $credentials['password']]);
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-				'Accept: application/json',
-				'Content-Type: application/json'
-			]
-		);
-		curl_setopt($ch, CURLOPT_URL, $uri);
-		curl_setopt($ch, CURLOPT_USERPWD, $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password']);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		try {
-			$response = json_decode(curl_exec($ch), TRUE);
-			$info = curl_getinfo($ch);
-			return [
-				'response' => $response,
-				'info' => $info
-			];
-		} catch (\Exception $exception) {
-			$this->systemLogger->log($exception->getMessage(), LOG_WARNING);
-		}
-		curl_close($ch);
 	}
 
 }
