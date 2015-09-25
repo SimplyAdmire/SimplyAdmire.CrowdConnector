@@ -66,6 +66,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 				$account = $this->accountRepository->findActiveByAccountIdentifierAndAuthenticationProviderName($authenticationResponse['response']['name'], $providerName);
 			} else {
 				$authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
+				return;
 			}
 
 			if (isset($account) && $account instanceof Account) {
@@ -73,6 +74,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider {
 				$authenticationToken->setAccount($account);
 			} else {
 				$authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
+				return;
 			}
 		} else {
 			$authenticationToken->setAuthenticationStatus(TokenInterface::NO_CREDENTIALS_GIVEN);

@@ -37,8 +37,6 @@ class AccountService {
 	/**
 	 * Create a single crowd generated account with given name and roles
 	 *
-	 * TODO: Create an update function
-	 *
 	 * @param string $username
 	 * @param string $firstName
 	 * @param string $lastName
