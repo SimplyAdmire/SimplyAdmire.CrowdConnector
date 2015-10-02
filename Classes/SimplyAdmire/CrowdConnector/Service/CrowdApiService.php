@@ -27,16 +27,18 @@ class CrowdApiService {
 	 */
 	public function getAllUsers() {
 		$uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['search'] . '?entity-type=user';
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
-		curl_setopt($ch, CURLOPT_URL, $uri);
-		curl_setopt($ch, CURLOPT_USERPWD, $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password']);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_POST, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		$curlHandle = curl_init();
+		curl_setopt_array($curlHandle, [
+			CURLOPT_HTTPHEADER => ['Accept: application/json'],
+			CURLOPT_URL => $uri,
+			CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
+			CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+			CURLOPT_POST => 0,
+			CURLOPT_RETURNTRANSFER => TRUE
+		]);
 		try {
-			$response = json_decode(curl_exec($ch), TRUE);
-			$info = curl_getinfo($ch);
+			$response = json_decode(curl_exec($curlHandle), TRUE);
+			$info = curl_getinfo($curlHandle);
 			return [
 				'users' => $response['users'],
 				'info' => $info
@@ -44,7 +46,7 @@ class CrowdApiService {
 		} catch (\Exception $exception) {
 			$this->systemLogger->log($exception->getMessage(), LOG_WARNING);
 		}
-		curl_close($ch);
+		curl_close($curlHandle);
 	}
 
 	/**
@@ -53,16 +55,18 @@ class CrowdApiService {
 	 */
 	public function getUserInformation($username) {
 		$uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['user'] . '?username=' . $username;
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
-		curl_setopt($ch, CURLOPT_URL, $uri);
-		curl_setopt($ch, CURLOPT_USERPWD, $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password']);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_POST, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		$curlHandle = curl_init();
+		curl_setopt_array($curlHandle, [
+			CURLOPT_HTTPHEADER => ['Accept: application/json'],
+			CURLOPT_URL => $uri,
+			CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
+			CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+			CURLOPT_POST => 0,
+			CURLOPT_RETURNTRANSFER => TRUE
+		]);
 		try {
-			$response = json_decode(curl_exec($ch), TRUE);
-			$info = curl_getinfo($ch);
+			$response = json_decode(curl_exec($curlHandle), TRUE);
+			$info = curl_getinfo($curlHandle);
 			return [
 				'user' => $response,
 				'info' => $info
@@ -70,7 +74,7 @@ class CrowdApiService {
 		} catch (\Exception $exception) {
 			$this->systemLogger->log($exception->getMessage(), LOG_WARNING);
 		}
-		curl_close($ch);
+		curl_close($curlHandle);
 	}
 
 	/**
@@ -80,21 +84,23 @@ class CrowdApiService {
 	public function getAuthenticationResponse(array $credentials) {
 		$uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'];
 		$data = json_encode(['value' => $credentials['password']]);
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		$curlHandle = curl_init();
+		curl_setopt($curlHandle, CURLOPT_HTTPHEADER, [
 				'Accept: application/json',
 				'Content-Type: application/json'
 			]
 		);
-		curl_setopt($ch, CURLOPT_URL, $uri);
-		curl_setopt($ch, CURLOPT_USERPWD, $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password']);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt_array($curlHandle, [
+			CURLOPT_URL => $uri,
+			CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
+			CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+			CURLOPT_POSTFIELDS => $data,
+			CURLOPT_POST => 1,
+			CURLOPT_RETURNTRANSFER => TRUE
+		]);
 		try {
-			$response = json_decode(curl_exec($ch), TRUE);
-			$info = curl_getinfo($ch);
+			$response = json_decode(curl_exec($curlHandle), TRUE);
+			$info = curl_getinfo($curlHandle);
 			return [
 				'response' => $response,
 				'info' => $info
@@ -102,7 +108,7 @@ class CrowdApiService {
 		} catch (\Exception $exception) {
 			$this->systemLogger->log($exception->getMessage(), LOG_WARNING);
 		}
-		curl_close($ch);
+		curl_close($curlHandle);
 	}
 
 }
