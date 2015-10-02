@@ -53,20 +53,20 @@ class AccountService {
 				'code' => self::RESULT_CODE_EXISTING_ACCOUNT
 			];
 		}
-		$account = new Account();
+		$account = $this->getNewAccount();
 		$account->setAccountIdentifier($username);
 		$account->setAuthenticationProviderName('crowdProvider');
 		$account->setRoles($roles);
 
-		$personName = new PersonName();
+		$personName = $this->getNewPersonName();
 		$personName->setFirstName($firstName);
 		$personName->setLastName($lastName);
 
-		$electronicAddress = new ElectronicAddress();
+		$electronicAddress = $this->getNewElectronicAddress();
 		$electronicAddress->setType(ElectronicAddress::TYPE_EMAIL);
 		$electronicAddress->setIdentifier($email);
 
-		$person = new Person();
+		$person = $this->getNewPerson();
 		$person->setName($personName);
 		$person->setPrimaryElectronicAddress($electronicAddress);
 
@@ -109,6 +109,38 @@ class AccountService {
 			'account' => $account,
 			'code' => self::RESULT_CODE_ACCOUNT_UPDATED
 		];
+	}
+
+	/**
+	 * @return Account
+	 */
+	public function getNewAccount()
+	{
+		return new Account();
+	}
+
+	/**
+	 * @return Person
+	 */
+	public function getNewPerson()
+	{
+		return new Person();
+	}
+
+	/**
+	 * @return PersonName
+	 */
+	public function getNewPersonName()
+	{
+		return new PersonName();
+	}
+
+	/**
+	 * @return ElectronicAddress
+	 */
+	public function getNewElectronicAddress()
+	{
+		return new ElectronicAddress();
 	}
 
 }
