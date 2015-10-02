@@ -1,4 +1,4 @@
-<a href="https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector"><img src="https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector/badges/gpa.svg" /></a>
+[![Code Climate](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector/badges/gpa.svg)](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector)
 
 # SimplyAdmire.CrowdConnector
 
