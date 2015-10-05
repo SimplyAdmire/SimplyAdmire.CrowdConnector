@@ -80,21 +80,16 @@ class AuthenticationControllerTest extends UnitTestCase
         $this->assertNull($authenticationControllerMock->authenticateAction());
     }
 
-//    /**
-//     * @test
-//     */
-//    public function testAuthenticationFailureMethod()
-//    {
-//        $authenticationControllerMock = $this->getAccessibleMock('SimplyAdmire\CrowdConnector\Controller\AuthenticationController', ['emitAccountAuthenticationFailure', 'forward'], [], '', FALSE);
-//        $flashMessageContainerMock = $this->getMockBuilder('\TYPO3\Flow\Mvc\FlashMessageContainer')->disableOriginalConstructor()->getMock();
-//
-//        $this->inject($authenticationControllerMock, 'flashMessageContainer', $flashMessageContainerMock);
-//
-//        $flashMessageContainerMock->expects($this->exactly(1))->method('addMessage');
-//        $authenticationControllerMock->expects($this->once())->method('emitAccountAuthenticationFailure');
-//
-//        $this->assertNull($authenticationControllerMock->onAuthenticationFailure());
-//    }
+    /**
+     * @test
+     */
+    public function testIfLoginMethodHasNoFurtherFunction()
+    {
+        $authenticationControllerMock = $this->getAccessibleMock('SimplyAdmire\CrowdConnector\Controller\AuthenticationController', ['dummy'], [], '', FALSE);
+        $this->assertNull(
+            $authenticationControllerMock->loginAction()
+        );
+    }
 
     /**
      * @test
