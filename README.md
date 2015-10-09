@@ -1,4 +1,4 @@
-[![Code Climate](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector/badges/gpa.svg)](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector)[![Build Status](https://api.travis-ci.org/SimplyAdmire/SimplyAdmire.CrowdConnector.svg)](https://travis-ci.org/SimplyAdmire/SimplyAdmire.CrowdConnector)
+[![Code Climate](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector/badges/gpa.svg)](https://codeclimate.com/github/SimplyAdmire/SimplyAdmire.CrowdConnector)
 [![Build Status](https://api.travis-ci.org/SimplyAdmire/SimplyAdmire.CrowdConnector.svg)](https://travis-ci.org/SimplyAdmire/SimplyAdmire.CrowdConnector)
 
 # SimplyAdmire.CrowdConnector
