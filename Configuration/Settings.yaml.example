@@ -1,8 +1,6 @@
+---
+
 TYPO3:
-  Neos:
-    typoScript:
-      autoInclude:
-        SimplyAdmire.CrowdConnector: TRUE
   Flow:
     security:
       authentication:
@@ -11,7 +9,7 @@ TYPO3:
           crowdProvider:
             provider: SimplyAdmire\CrowdConnector\Provider\CrowdProvider
             providerOptions:
-              crowdServerUrl: 'https://people.simplyadmire.com/crowd'
+              crowdServerUrl: ''
               password: '## DO NOT SET PASSWORD HERE! We do not want this in git! :) ##'
               applicationName: ''
               mode: ''
@@ -23,7 +21,7 @@ TYPO3:
             entryPoint: WebRedirect
             entryPointOptions:
               routeValues:
-                '@package': SimplyAdmire.CrowdConnector
+                '@package': Your.Package
                 '@controller': Authentication
                 '@action': login
                 '@format': html
