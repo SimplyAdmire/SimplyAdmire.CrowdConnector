@@ -10,137 +10,141 @@ use TYPO3\Party\Domain\Model\Person;
 use TYPO3\Party\Domain\Model\PersonName;
 use TYPO3\Party\Domain\Repository\PartyRepository;
 
-class AccountService {
+class AccountService
+{
 
-	const RESULT_CODE_ACCOUNT_CREATED = 200;
-	const RESULT_CODE_EXISTING_ACCOUNT = 300;
-	const RESULT_CODE_ACCOUNT_UPDATED = 400;
+    const RESULT_CODE_ACCOUNT_CREATED = 200;
+    const RESULT_CODE_EXISTING_ACCOUNT = 300;
+    const RESULT_CODE_ACCOUNT_UPDATED = 400;
 
-	/**
-	 * @Flow\Inject
-	 * @var AccountRepository
-	 */
-	protected $accountRepository;
+    /**
+     * @Flow\Inject
+     * @var AccountRepository
+     */
+    protected $accountRepository;
 
-	/**
-	 * @Flow\Inject
-	 * @var PartyRepository
-	 */
-	protected $partyRepository;
+    /**
+     * @Flow\Inject
+     * @var PartyRepository
+     */
+    protected $partyRepository;
 
-	/**
-	 * @Flow\Inject
-	 * @var PersistenceManager
-	 */
-	protected $persistenceManager;
+    /**
+     * @Flow\Inject
+     * @var PersistenceManager
+     */
+    protected $persistenceManager;
 
-	/**
-	 * Create a single crowd generated account with given name and roles
-	 *
-	 * @param string $username
-	 * @param string $firstName
-	 * @param string $lastName
-	 * @param string $email
-	 * @param array $roles
-	 * @return string
-	 */
-	public function createCrowdAccount($username, $firstName, $lastName, $email, array $roles = []) {
-		$account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName($username, 'crowdProvider');
-		if ($account instanceof Account) {
-			return [
-				'message' => sprintf('User with username: %s already exists', $username),
-				'account' => $account,
-				'code' => self::RESULT_CODE_EXISTING_ACCOUNT
-			];
-		}
-		$account = $this->getNewAccount();
-		$account->setAccountIdentifier($username);
-		$account->setAuthenticationProviderName('crowdProvider');
-		$account->setRoles($roles);
+    /**
+     * Create a single crowd generated account with given name and roles
+     *
+     * @param string $username
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param array $roles
+     * @return string
+     */
+    public function createCrowdAccount($username, $firstName, $lastName, $email, array $roles = [])
+    {
+        $account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName($username,
+            'crowdProvider');
+        if ($account instanceof Account) {
+            return [
+                'message' => sprintf('User with username: %s already exists', $username),
+                'account' => $account,
+                'code' => self::RESULT_CODE_EXISTING_ACCOUNT
+            ];
+        }
+        $account = $this->getNewAccount();
+        $account->setAccountIdentifier($username);
+        $account->setAuthenticationProviderName('crowdProvider');
+        $account->setRoles($roles);
 
-		$personName = $this->getNewPersonName();
-		$personName->setFirstName($firstName);
-		$personName->setLastName($lastName);
+        $personName = $this->getNewPersonName();
+        $personName->setFirstName($firstName);
+        $personName->setLastName($lastName);
 
-		$electronicAddress = $this->getNewElectronicAddress();
-		$electronicAddress->setType(ElectronicAddress::TYPE_EMAIL);
-		$electronicAddress->setIdentifier($email);
+        $electronicAddress = $this->getNewElectronicAddress();
+        $electronicAddress->setType(ElectronicAddress::TYPE_EMAIL);
+        $electronicAddress->setIdentifier($email);
 
-		$person = $this->getNewPerson();
-		$person->setName($personName);
-		$person->setPrimaryElectronicAddress($electronicAddress);
+        $person = $this->getNewPerson();
+        $person->setName($personName);
+        $person->setPrimaryElectronicAddress($electronicAddress);
 
-		$person->addAccount($account);
-		$account->setParty($person);
+        $person->addAccount($account);
+        $account->setParty($person);
 
-		$this->accountRepository->add($account);
-		$this->partyRepository->add($person);
+        $this->accountRepository->add($account);
+        $this->partyRepository->add($person);
 
-		$this->persistenceManager->persistAll();
-		return [
-			'message' => sprintf('User %s is created', $username),
-			'account' => $account,
-			'code' => self::RESULT_CODE_ACCOUNT_CREATED
-		];
-	}
+        $this->persistenceManager->persistAll();
+        return [
+            'message' => sprintf('User %s is created', $username),
+            'account' => $account,
+            'code' => self::RESULT_CODE_ACCOUNT_CREATED
+        ];
+    }
 
-	/**
-	 * Update a single user (account)
-	 *
-	 * @param Account $account
-	 * @param array $userDetails
-	 * @return array
-	 */
-	public function updateAccount(Account $account, array $userDetails) {
-		/** @var Person $person */
-		$person = $this->partyRepository->findOneHavingAccount($account);
-		$name = $person->getName();
-		$name->setFirstName($userDetails['user']['first-name']);
-		$name->setLastName($userDetails['user']['last-name']);
-		$email = $person->getPrimaryElectronicAddress();
-		$email->setIdentifier($userDetails['user']['email']);
-		$person->setName($name);
-		$person->setPrimaryElectronicAddress($email);
-		$this->partyRepository->update($person);
-		$this->persistenceManager->persistAll();
+    /**
+     * Update a single user (account)
+     *
+     * @param Account $account
+     * @param array $userDetails
+     * @return array
+     */
+    public function updateAccount(Account $account, array $userDetails)
+    {
+        /** @var Person $person */
+        $person = $this->partyRepository->findOneHavingAccount($account);
+        $name = $person->getName();
+        $name->setFirstName($userDetails['user']['first-name']);
+        $name->setLastName($userDetails['user']['last-name']);
+        $email = $person->getPrimaryElectronicAddress();
+        $email->setIdentifier($userDetails['user']['email']);
+        $person->setName($name);
+        $person->setPrimaryElectronicAddress($email);
+        $this->partyRepository->update($person);
+        $this->persistenceManager->persistAll();
 
-		return [
-			'message' => sprintf('User: %s is updated', $account->getAccountIdentifier()),
-			'account' => $account,
-			'code' => self::RESULT_CODE_ACCOUNT_UPDATED
-		];
-	}
+        return [
+            'message' => sprintf('User: %s is updated', $account->getAccountIdentifier()),
+            'account' => $account,
+            'code' => self::RESULT_CODE_ACCOUNT_UPDATED
+        ];
+    }
 
-	/**
-	 * @return Account
-	 */
-	public function getNewAccount()
-	{
-		return new Account();
-	}
+    /**
+     * @return Account
+     */
+    public function getNewAccount()
+    {
+        return new Account();
+    }
 
-	/**
-	 * @return Person
-	 */
-	public function getNewPerson()
-	{
-		return new Person();
-	}
+    /**
+     * @return Person
+     */
+    public function getNewPerson()
+    {
+        return new Person();
+    }
 
-	/**
-	 * @return PersonName
-	 */
-	public function getNewPersonName()
-	{
-		return new PersonName();
-	}
+    /**
+     * @return PersonName
+     */
+    public function getNewPersonName()
+    {
+        return new PersonName();
+    }
 
-	/**
-	 * @return ElectronicAddress
-	 */
-	public function getNewElectronicAddress()
-	{
-		return new ElectronicAddress();
-	}
+    /**
+     * @return ElectronicAddress
+     */
+    public function getNewElectronicAddress()
+    {
+        return new ElectronicAddress();
+    }
 
 }
