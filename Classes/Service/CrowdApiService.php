@@ -1,6 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Service;
 
+use SimplyAdmire\CrowdConnector\Crowd\Response;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 
@@ -48,29 +49,16 @@ class CrowdApiService
      */
     public function getAllUsers()
     {
-        $users = [];
-        $url = $this->providerOptions['url'] . $this->providerOptions['apiUrls']['search'] . '?entity-type=user';
-        $curlHandle = \curl_init();
-        curl_setopt_array($curlHandle, [
-            CURLOPT_HTTPHEADER => ['Accept: application/json'],
-            CURLOPT_URL => $url,
-            CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_POST => 0,
-            CURLOPT_RETURNTRANSFER => true
-        ]);
-        try {
-            $response = \json_decode(\curl_exec($curlHandle), true);
-            $info = \curl_getinfo($curlHandle);
-            $users = [
-                'users' => $response['users'],
-                'info' => $info
-            ];
-        } catch (\Exception $exception) {
-            $this->systemLogger->log($exception->getMessage(), LOG_WARNING);
+        $response = $this->doRequest(
+            $this->providerOptions['apiUrls']['search'] . '?entity-type=user'
+        );
+
+        if ($response->isSuccess()) {
+            $data = $response->getData();
+            return $data['users'];
         }
-        \curl_close($curlHandle);
-        return $users;
+
+        return [];
     }
 
     /**
@@ -79,27 +67,15 @@ class CrowdApiService
      */
     public function getUserInformation($username)
     {
-        $uri = $this->providerOptions['url'] . $this->providerOptions['apiUrls']['user'] . '?username=' . $username;
-        $curlHandle = \curl_init();
-        \curl_setopt_array($curlHandle, [
-            CURLOPT_HTTPHEADER => ['Accept: application/json'],
-            CURLOPT_URL => $uri,
-            CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_POST => 0,
-            CURLOPT_RETURNTRANSFER => true
-        ]);
-        try {
-            $response = \json_decode(\curl_exec($curlHandle), true);
-            $info = \curl_getinfo($curlHandle);
-            return [
-                'user' => $response,
-                'info' => $info
-            ];
-        } catch (\Exception $exception) {
-            $this->systemLogger->log($exception->getMessage(), LOG_WARNING);
+        $response = $this->doRequest(
+            $this->providerOptions['apiUrls']['user'] . '?username=' . $username
+        );
+
+        if ($response->isSuccess()) {
+            return $response->getData();
         }
-        \curl_close($curlHandle);
+
+        return [];
     }
 
     /**
@@ -108,33 +84,61 @@ class CrowdApiService
      */
     public function getAuthenticationResponse(array $credentials)
     {
-        $uri = $this->providerOptions['url'] . $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'];
-        $data = \json_encode(['value' => $credentials['password']]);
-        $curlHandle = \curl_init();
-        \curl_setopt($curlHandle, CURLOPT_HTTPHEADER, [
-                'Accept: application/json',
-                'Content-Type: application/json'
-            ]
+        $response = $this->doRequest(
+            $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'],
+            ['value' => $credentials['password']]
         );
-        \curl_setopt_array($curlHandle, [
-            CURLOPT_URL => $uri,
-            CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_POST => 1,
-            CURLOPT_RETURNTRANSFER => true
-        ]);
+        return [
+            'response' => $response->getData(),
+            'info' => $response->getResponseInfo()
+        ];
+    }
+
+    /**
+     * @param string $uri
+     * @param array $data
+     * @return Response
+     * @throws \Exception
+     */
+    protected function doRequest($uri, array $data = [])
+    {
         try {
-            $response = \json_decode(\curl_exec($curlHandle), true);
-            $info = \curl_getinfo($curlHandle);
-            return [
-                'response' => $response,
-                'info' => $info
-            ];
+            $curlHandle = \curl_init();
+
+            \curl_setopt_array(
+                $curlHandle,
+                [
+                    CURLOPT_HTTPHEADER => [
+                        'Accept: application/json',
+                        'Content-Type: application/json'
+                    ],
+                    CURLOPT_URL => $this->providerOptions['url'] . $uri,
+                    CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
+                    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => 0
+                ]
+            );
+
+            if ($data !== []) {
+                \curl_setopt_array(
+                    $curlHandle,
+                    [
+                        CURLOPT_POSTFIELDS => \json_encode($data),
+                        CURLOPT_POST => 1
+                    ]
+                );
+            }
+
+            $result = \curl_exec($curlHandle);
+            $response = Response::createFromResponseContent($result, \curl_getinfo($curlHandle));
+            \curl_close($curlHandle);
+
+            return $response;
         } catch (\Exception $exception) {
             $this->systemLogger->log($exception->getMessage(), LOG_WARNING);
+            throw $exception;
         }
-        \curl_close($curlHandle);
     }
 
 }

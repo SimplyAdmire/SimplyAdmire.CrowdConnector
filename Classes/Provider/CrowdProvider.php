@@ -15,19 +15,6 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
 {
 
     /**
-     * Name of the provider as set in Settings.yaml
-     *
-     * @var string
-     */
-    protected $name = 'crowdProvider';
-
-    /**
-     * @Flow\InjectConfiguration(path="security.authentication.providers.crowdProvider.providerOptions", package="TYPO3.Flow")
-     * @var array
-     */
-    protected $providerOptions;
-
-    /**
      * @Flow\Inject
      * @var HttpClient
      */
@@ -69,8 +56,10 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
             $statusCode = $authenticationResponse['info']['http_code'];
 
             if ($statusCode === 200 && isset($authenticationResponse['response']['name']) && $authenticationResponse['response']['name'] === $credentials['username']) {
-                $account = $this->accountRepository->findActiveByAccountIdentifierAndAuthenticationProviderName($authenticationResponse['response']['name'],
-                    $providerName);
+                $account = $this->accountRepository->findActiveByAccountIdentifierAndAuthenticationProviderName(
+                    $authenticationResponse['response']['name'],
+                    $providerName
+                );
             } else {
                 $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
                 return;
@@ -86,6 +75,27 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
         } else {
             $authenticationToken->setAuthenticationStatus(TokenInterface::NO_CREDENTIALS_GIVEN);
         }
+    }
+
+
+    /**
+     * @param Account $account
+     * @param array $crowdData
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitAccountAuthenticated(Account $account, array $crowdData)
+    {
+    }
+
+    /**
+     * @param Account $account
+     * @param array $crowdData
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitRolesSet(Account $account, array $crowdData)
+    {
     }
 
 }

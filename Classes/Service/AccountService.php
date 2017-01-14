@@ -60,28 +60,7 @@ class AccountService
         $this->persistenceManager->whitelistObject($account);
         $this->accountRepository->add($account);
 
-        if (\class_exists('TYPO3\Party\Domain\Repository\PartyRepository')) {
-            $partyRepository = $this->objectManager->get('TYPO3\Party\Domain\Repository\PartyRepository');
-            $partyService = $this->objectManager->get('TYPO3\Party\Domain\Service\PartyService');
-
-            $personName = $this->objectManager->get('TYPO3\Party\Domain\Model\PersonName');
-            $personName->setFirstName($firstName);
-            $personName->setLastName($lastName);
-            $this->persistenceManager->whitelistObject($personName);
-
-            $electronicAddress = $this->objectManager->get('TYPO3\Party\Domain\Model\ElectronicAddress');
-            $electronicAddress->setType(\TYPO3\Party\Domain\Model\ElectronicAddress::TYPE_EMAIL);
-            $electronicAddress->setIdentifier($email);
-            $this->persistenceManager->whitelistObject($electronicAddress);
-
-            $person = $this->objectManager->get('TYPO3\Party\Domain\Model\Person');
-            $person->setName($personName);
-            $person->setPrimaryElectronicAddress($electronicAddress);
-            $this->persistenceManager->whitelistObject($person);
-
-            $partyRepository->add($person);
-            $partyService->assignAccountToParty($account, $person);
-        }
+        $this->emitAccountCreated($account);
 
         return [
             'message' => \sprintf('User %s is created', $username),
@@ -116,6 +95,26 @@ class AccountService
             'account' => $account,
             'code' => self::RESULT_CODE_ACCOUNT_UPDATED
         ];
+    }
+
+    /**
+     * @param Account $account
+     * @param array $crowdData
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitAccountCreated(Account $account, array $crowdData)
+    {
+    }
+
+    /**
+     * @param Account $account
+     * @param array $crowdData
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitAccountUpdated(Account $account, array $crowdData)
+    {
     }
 
 }
