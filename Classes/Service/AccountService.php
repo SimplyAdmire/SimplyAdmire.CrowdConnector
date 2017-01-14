@@ -2,13 +2,10 @@
 namespace SimplyAdmire\CrowdConnector\Service;
 
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Object\ObjectManagerInterface;
 use TYPO3\Flow\Persistence\Doctrine\PersistenceManager;
 use TYPO3\Flow\Security\Account;
 use TYPO3\Flow\Security\AccountRepository;
-use TYPO3\Party\Domain\Model\ElectronicAddress;
-use TYPO3\Party\Domain\Model\Person;
-use TYPO3\Party\Domain\Model\PersonName;
-use TYPO3\Party\Domain\Repository\PartyRepository;
 
 class AccountService
 {
@@ -25,15 +22,15 @@ class AccountService
 
     /**
      * @Flow\Inject
-     * @var PartyRepository
-     */
-    protected $partyRepository;
-
-    /**
-     * @Flow\Inject
      * @var PersistenceManager
      */
     protected $persistenceManager;
+
+    /**
+     * @Flow\Inject
+     * @var ObjectManagerInterface
+     */
+    protected $objectManager;
 
     /**
      * Create a single crowd generated account with given name and roles
@@ -51,37 +48,43 @@ class AccountService
             'crowdProvider');
         if ($account instanceof Account) {
             return [
-                'message' => sprintf('User with username: %s already exists', $username),
+                'message' => \sprintf('User with username: %s already exists', $username),
                 'account' => $account,
                 'code' => self::RESULT_CODE_EXISTING_ACCOUNT
             ];
         }
-        $account = $this->getNewAccount();
+        $account = new Account();
         $account->setAccountIdentifier($username);
         $account->setAuthenticationProviderName('crowdProvider');
         $account->setRoles($roles);
-
-        $personName = $this->getNewPersonName();
-        $personName->setFirstName($firstName);
-        $personName->setLastName($lastName);
-
-        $electronicAddress = $this->getNewElectronicAddress();
-        $electronicAddress->setType(ElectronicAddress::TYPE_EMAIL);
-        $electronicAddress->setIdentifier($email);
-
-        $person = $this->getNewPerson();
-        $person->setName($personName);
-        $person->setPrimaryElectronicAddress($electronicAddress);
-
-        $person->addAccount($account);
-        $account->setParty($person);
-
+        $this->persistenceManager->whitelistObject($account);
         $this->accountRepository->add($account);
-        $this->partyRepository->add($person);
 
-        $this->persistenceManager->persistAll();
+        if (\class_exists('TYPO3\Party\Domain\Repository\PartyRepository')) {
+            $partyRepository = $this->objectManager->get('TYPO3\Party\Domain\Repository\PartyRepository');
+            $partyService = $this->objectManager->get('TYPO3\Party\Domain\Service\PartyService');
+
+            $personName = $this->objectManager->get('TYPO3\Party\Domain\Model\PersonName');
+            $personName->setFirstName($firstName);
+            $personName->setLastName($lastName);
+            $this->persistenceManager->whitelistObject($personName);
+
+            $electronicAddress = $this->objectManager->get('TYPO3\Party\Domain\Model\ElectronicAddress');
+            $electronicAddress->setType(\TYPO3\Party\Domain\Model\ElectronicAddress::TYPE_EMAIL);
+            $electronicAddress->setIdentifier($email);
+            $this->persistenceManager->whitelistObject($electronicAddress);
+
+            $person = $this->objectManager->get('TYPO3\Party\Domain\Model\Person');
+            $person->setName($personName);
+            $person->setPrimaryElectronicAddress($electronicAddress);
+            $this->persistenceManager->whitelistObject($person);
+
+            $partyRepository->add($person);
+            $partyService->assignAccountToParty($account, $person);
+        }
+
         return [
-            'message' => sprintf('User %s is created', $username),
+            'message' => \sprintf('User %s is created', $username),
             'account' => $account,
             'code' => self::RESULT_CODE_ACCOUNT_CREATED
         ];
@@ -96,55 +99,23 @@ class AccountService
      */
     public function updateAccount(Account $account, array $userDetails)
     {
-        /** @var Person $person */
-        $person = $this->partyRepository->findOneHavingAccount($account);
-        $name = $person->getName();
-        $name->setFirstName($userDetails['user']['first-name']);
-        $name->setLastName($userDetails['user']['last-name']);
-        $email = $person->getPrimaryElectronicAddress();
-        $email->setIdentifier($userDetails['user']['email']);
-        $person->setName($name);
-        $person->setPrimaryElectronicAddress($email);
-        $this->partyRepository->update($person);
-        $this->persistenceManager->persistAll();
+        if (\class_exists('TYPO3\Party\Domain\Repository\PartyRepository')) {
+            $partyRepository = $this->objectManager->get('TYPO3\Party\Domain\Repository\PartyRepository');
+            $partyService = $this->objectManager->get('TYPO3\Party\Domain\Service\PartyService');
+
+            $person = $partyService->getAssignedPartyOfAccount($account);
+            $person->getName()->setFirstName($userDetails['user']['first-name']);
+            $person->getName()->setLastName($userDetails['user']['last-name']);
+            $person->getPrimaryElectronicAddress()->setIdentifier($userDetails['user']['email']);
+            $partyRepository->update($person);
+            $this->persistenceManager->whitelistObject($person);
+        }
 
         return [
-            'message' => sprintf('User: %s is updated', $account->getAccountIdentifier()),
+            'message' => \sprintf('User: %s is updated', $account->getAccountIdentifier()),
             'account' => $account,
             'code' => self::RESULT_CODE_ACCOUNT_UPDATED
         ];
-    }
-
-    /**
-     * @return Account
-     */
-    public function getNewAccount()
-    {
-        return new Account();
-    }
-
-    /**
-     * @return Person
-     */
-    public function getNewPerson()
-    {
-        return new Person();
-    }
-
-    /**
-     * @return PersonName
-     */
-    public function getNewPersonName()
-    {
-        return new PersonName();
-    }
-
-    /**
-     * @return ElectronicAddress
-     */
-    public function getNewElectronicAddress()
-    {
-        return new ElectronicAddress();
     }
 
 }
