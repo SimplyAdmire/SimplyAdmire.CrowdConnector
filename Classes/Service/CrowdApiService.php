@@ -4,6 +4,7 @@ namespace SimplyAdmire\CrowdConnector\Service;
 use SimplyAdmire\CrowdConnector\Crowd\Response;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Log\SystemLoggerInterface;
+use TYPO3\Flow\Utility\Arrays;
 
 class CrowdApiService
 {
@@ -80,18 +81,25 @@ class CrowdApiService
 
     /**
      * @param array $credentials
+     * @throws \Exception
      * @return array
      */
-    public function getAuthenticationResponse(array $credentials)
+    public function authenticate(array $credentials)
     {
         $response = $this->doRequest(
             $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'],
             ['value' => $credentials['password']]
         );
-        return [
-            'response' => $response->getData(),
-            'info' => $response->getResponseInfo()
-        ];
+
+        if (!$response->isSuccess()) {
+            throw new \Exception('Authentication failed');
+        }
+
+        $data = $response->getData();
+        $usernameInResponse = Arrays::getValueByPath($data, 'name');
+        if ($usernameInResponse !== $credentials['username']) {
+            throw new \Exception('Authentication failed');
+        }
     }
 
     /**

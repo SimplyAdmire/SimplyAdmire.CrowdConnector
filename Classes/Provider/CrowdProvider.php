@@ -1,6 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Provider;
 
+use SimplyAdmire\CrowdConnector\Service\AccountService;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
 use TYPO3\Flow\Http\Response;
 use TYPO3\Flow\Log\SystemLoggerInterface;
@@ -37,6 +38,12 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
      */
     protected $crowdApiService;
 
+    /**
+     * @Flow\Inject
+     * @var AccountService
+     */
+    protected $accountService;
+
     protected function initializeObject()
     {
         $this->crowdApiService = new CrowdApiService($this->options['instance']);
@@ -49,31 +56,31 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
     public function authenticate(TokenInterface $authenticationToken)
     {
         $credentials = $authenticationToken->getCredentials();
-        if (\is_array($credentials) && isset($credentials['username']) && isset($credentials['password'])) {
-            $providerName = $this->name;
-            $authenticationResponse = $this->crowdApiService->getAuthenticationResponse($credentials);
 
-            $statusCode = $authenticationResponse['info']['http_code'];
-
-            if ($statusCode === 200 && isset($authenticationResponse['response']['name']) && $authenticationResponse['response']['name'] === $credentials['username']) {
-                $account = $this->accountRepository->findActiveByAccountIdentifierAndAuthenticationProviderName(
-                    $authenticationResponse['response']['name'],
-                    $providerName
-                );
-            } else {
-                $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
-                return;
-            }
-
-            if (isset($account) && $account instanceof Account) {
-                $authenticationToken->setAuthenticationStatus(TokenInterface::AUTHENTICATION_SUCCESSFUL);
-                $authenticationToken->setAccount($account);
-            } else {
-                $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
-                return;
-            }
-        } else {
+        if (!is_array($credentials) || !isset($credentials['username']) || !isset($credentials['password'])) {
             $authenticationToken->setAuthenticationStatus(TokenInterface::NO_CREDENTIALS_GIVEN);
+            return;
+        }
+
+        $username = $credentials['username'];
+
+        try {
+            $this->crowdApiService->authenticate($credentials);
+
+            if ($this->accountService->accountForUsernameExists($username, $this->name)) {
+                $account = $this->accountService->getAccountForUsername($username, $this->name);
+            } else {
+                $account = $this->accountService->createAccount(
+                    $username,
+                    $this->name,
+                    $this->crowdApiService->getUserInformation($username)
+                );
+            }
+
+            $authenticationToken->setAuthenticationStatus(TokenInterface::AUTHENTICATION_SUCCESSFUL);
+            $authenticationToken->setAccount($account);
+        } catch (\Exception $exception) {
+            $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
         }
     }
 

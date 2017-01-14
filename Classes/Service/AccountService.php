@@ -6,6 +6,7 @@ use TYPO3\Flow\Object\ObjectManagerInterface;
 use TYPO3\Flow\Persistence\Doctrine\PersistenceManager;
 use TYPO3\Flow\Security\Account;
 use TYPO3\Flow\Security\AccountRepository;
+use TYPO3\Flow\Utility\Now;
 
 class AccountService
 {
@@ -33,68 +34,83 @@ class AccountService
     protected $objectManager;
 
     /**
+     * @Flow\Inject(lazy=false)
+     * @var Now
+     */
+    protected $now;
+
+    /**
+     * @param string $username
+     * @throws |Exception
+     * @return Account
+     */
+    public function getAccountForUsername($username, $providerName)
+    {
+        $account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName(
+            $username,
+            $providerName
+        );
+
+        if (!$account instanceof Account) {
+            throw new \Exception('Account not found');
+        }
+
+        return $account;
+    }
+
+    public function accountForUsernameExists($username, $providerName)
+    {
+        try {
+            return $this->getAccountForUsername($username, $providerName) instanceof Account;
+        } catch (\Exception $exception) {
+            return false;
+        }
+    }
+
+    /**
      * Create a single crowd generated account with given name and roles
      *
      * @param string $username
-     * @param string $firstName
-     * @param string $lastName
-     * @param string $email
-     * @param array $roles
+     * @param string $providerName
+     * @param array $crowdData
      * @return string
      */
-    public function createCrowdAccount($username, $firstName, $lastName, $email, array $roles = [])
+    public function createAccount($username, $providerName, array $crowdData)
     {
-        $account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName($username,
-            'crowdProvider');
-        if ($account instanceof Account) {
-            return [
-                'message' => \sprintf('User with username: %s already exists', $username),
-                'account' => $account,
-                'code' => self::RESULT_CODE_EXISTING_ACCOUNT
-            ];
-        }
         $account = new Account();
         $account->setAccountIdentifier($username);
-        $account->setAuthenticationProviderName('crowdProvider');
-        $account->setRoles($roles);
+        $account->setAuthenticationProviderName($providerName);
+
         $this->persistenceManager->whitelistObject($account);
         $this->accountRepository->add($account);
 
-        $this->emitAccountCreated($account);
+        $this->emitAccountCreated($account, $crowdData);
 
-        return [
-            'message' => \sprintf('User %s is created', $username),
-            'account' => $account,
-            'code' => self::RESULT_CODE_ACCOUNT_CREATED
-        ];
+        return $account;
     }
 
     /**
      * Update a single user (account)
      *
      * @param Account $account
-     * @param array $userDetails
+     * @param array $crowdData
      * @return array
      */
-    public function updateAccount(Account $account, array $userDetails)
+    public function updateAccount(Account $account, array $crowdData)
     {
-        if (\class_exists('TYPO3\Party\Domain\Repository\PartyRepository')) {
-            $partyRepository = $this->objectManager->get('TYPO3\Party\Domain\Repository\PartyRepository');
-            $partyService = $this->objectManager->get('TYPO3\Party\Domain\Service\PartyService');
+        $this->emitAccountUpdated($account, $crowdData);
+    }
 
-            $person = $partyService->getAssignedPartyOfAccount($account);
-            $person->getName()->setFirstName($userDetails['user']['first-name']);
-            $person->getName()->setLastName($userDetails['user']['last-name']);
-            $person->getPrimaryElectronicAddress()->setIdentifier($userDetails['user']['email']);
-            $partyRepository->update($person);
-            $this->persistenceManager->whitelistObject($person);
-        }
+    public function deactivate(Account $account)
+    {
+        $account->setExpirationDate($this->now);
+        $this->accountRepository->update($account);
+    }
 
-        return [
-            'message' => \sprintf('User: %s is updated', $account->getAccountIdentifier()),
-            'account' => $account,
-            'code' => self::RESULT_CODE_ACCOUNT_UPDATED
-        ];
+    public function activate(Account $account)
+    {
+        $account->setExpirationDate(null);
+        $this->accountRepository->update($account);
     }
 
     /**

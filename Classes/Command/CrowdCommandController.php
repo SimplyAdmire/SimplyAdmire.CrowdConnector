@@ -5,7 +5,9 @@ use SimplyAdmire\CrowdConnector\Service\AccountService;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
 use TYPO3\Flow\Cli\CommandController;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Persistence\Doctrine\Query;
 use TYPO3\Flow\Security\Account;
+use TYPO3\Flow\Security\AccountRepository;
 use TYPO3\Flow\Utility\Arrays;
 
 class CrowdCommandController extends CommandController
@@ -24,48 +26,84 @@ class CrowdCommandController extends CommandController
     protected $instances;
 
     /**
+     * @Flow\Inject
+     * @var AccountRepository
+     */
+    protected $accountRepository;
+
+    /**
      * Import the users from Crowd
      */
     public function importUsersCommand()
     {
         foreach ($this->instances as $instanceIdentifier => $instanceConfiguration) {
-            $this->importInstance($instanceIdentifier);
+            $importEnabled = Arrays::getValueByPath($instanceConfiguration, 'import.enabled');
+            $providerName = Arrays::getValueByPath($instanceConfiguration, 'import.providerName');
+
+            if ($importEnabled !== true || $providerName === null) {
+                continue;
+            }
+
+            $this->importInstance($instanceIdentifier, $providerName);
         }
     }
 
-    protected function importInstance($instanceIdentifier)
+    protected function importInstance($instanceIdentifier, $providerName)
     {
+        $this->outputLine('Import %s for provider %s', [$instanceIdentifier, $providerName]);
+
         $crowdApiService = new CrowdApiService($instanceIdentifier);
+        $activeAccountIdentifiers = [];
 
         foreach ($crowdApiService->getAllUsers() as $user) {
+            $username = $user['name'];
             $userDetails = $crowdApiService->getUserInformation($user['name']);
+
             if ($userDetails === []) {
                 continue;
             }
 
             if ($userDetails['active'] === true) {
-                $result = $this->accountService->createCrowdAccount(
-                    $user['name'],
-                    $userDetails['first-name'],
-                    $userDetails['last-name'],
-                    $userDetails['email']
-                );
+                $activeAccountIdentifiers[] = $username;
 
-                $this->outputLine($result['message']);
+                if ($this->accountService->accountForUsernameExists($username, $providerName)) {
+                    $account = $this->accountService->getAccountForUsername($username, $providerName);
+                    $this->accountService->updateAccount($account, $userDetails);
 
-                /** @var Account $account */
-                $account = $result['account'];
-
-                if ($result['code'] === AccountService::RESULT_CODE_EXISTING_ACCOUNT) {
-                    $updateResult = $this->accountService->updateAccount($account, $userDetails);
-
-                    if ($updateResult['code'] === AccountService::RESULT_CODE_ACCOUNT_UPDATED) {
-                        $this->outputLine($updateResult['message']);
+                    if ($account->isActive() === false) {
+                        $this->accountService->activate($account);
                     }
-                } elseif ($result['code'] === AccountService::RESULT_CODE_ACCOUNT_CREATED) {
+
+                    $this->outputLine('Updated user %s', [$username]);
+                } else {
+                    $this->accountService->createAccount($username, $providerName, $userDetails);
+
+                    $this->outputLine('Created user %s', [$username]);
                 }
             }
         }
+
+        /** @var Query $query */
+        $query = $this->accountRepository->findByAuthenticationProviderName($providerName)->getQuery();
+        $constraint = $query->getConstraint();
+
+        $accountsToDeactivate = $query->matching(
+            $query->logicalAnd(
+                $constraint,
+                $query->equals('expirationDate', null),
+                $query->logicalNot(
+                    $query->in('accountIdentifier', $activeAccountIdentifiers)
+                )
+            )
+        )->execute();
+
+        /** @var Account $account */
+        foreach ($accountsToDeactivate as $account) {
+            $this->outputLine('Deactivate %s', [$account->getAccountIdentifier()]);
+            $this->accountService->deactivate($account);
+        }
+
+        $this->outputLine('Done');
     }
 
 }
