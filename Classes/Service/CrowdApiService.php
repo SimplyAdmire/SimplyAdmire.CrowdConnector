@@ -1,7 +1,6 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Service;
 
-use SimplyAdmire\CrowdConnector\Command\Exception\CrowdSearchException;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 
@@ -46,7 +45,6 @@ class CrowdApiService
      * Retrieves all users from crowd
      *
      * @return array
-     * @throws CrowdSearchException
      */
     public function getAllUsers()
     {

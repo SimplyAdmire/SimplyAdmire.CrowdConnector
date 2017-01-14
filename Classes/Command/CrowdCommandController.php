@@ -25,8 +25,6 @@ class CrowdCommandController extends CommandController
 
     /**
      * Import the users from Crowd
-     *
-     * @throws CrowdSearchException
      */
     public function importUsersCommand()
     {
@@ -68,7 +66,7 @@ class CrowdCommandController extends CommandController
                 }
             }
         } else {
-            throw new CrowdSearchException(sprintf('Search result from crowd did not return a valid response, response code was: %s',
+            throw new \Exception(sprintf('Search result from crowd did not return a valid response, response code was: %s',
                 $statusCode), 12389176891);
         }
     }
