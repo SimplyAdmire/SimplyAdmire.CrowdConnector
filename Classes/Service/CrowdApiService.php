@@ -23,11 +23,13 @@ class CrowdApiService
     /**
      * Retrieves all users from crowd
      *
-     * @return array|void
+     * @return array
      * @throws CrowdSearchException
      */
     public function getAllUsers()
     {
+        $users = [];
+        s
         $uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['search'] . '?entity-type=user';
         $curlHandle = curl_init();
         curl_setopt_array($curlHandle, [
@@ -41,7 +43,7 @@ class CrowdApiService
         try {
             $response = json_decode(curl_exec($curlHandle), true);
             $info = curl_getinfo($curlHandle);
-            return [
+            $users = [
                 'users' => $response['users'],
                 'info' => $info
             ];
@@ -49,6 +51,7 @@ class CrowdApiService
             $this->systemLogger->log($exception->getMessage(), LOG_WARNING);
         }
         curl_close($curlHandle);
+        return $users;
     }
 
     /**
