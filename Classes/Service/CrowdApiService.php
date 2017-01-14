@@ -29,7 +29,6 @@ class CrowdApiService
     public function getAllUsers()
     {
         $users = [];
-        s
         $uri = $this->providerOptions['crowdServerUrl'] . $this->providerOptions['apiUrls']['search'] . '?entity-type=user';
         $curlHandle = curl_init();
         curl_setopt_array($curlHandle, [
