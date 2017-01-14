@@ -4,24 +4,20 @@ TYPO3:
   Flow:
     security:
       authentication:
-        authenticationStrategy: atLeastOneToken
         providers:
           crowdProvider:
             provider: SimplyAdmire\CrowdConnector\Provider\CrowdProvider
             providerOptions:
-              crowdServerUrl: ''
-              password: '## DO NOT SET PASSWORD HERE! We do not want this in git! :) ##'
-              applicationName: ''
-              mode: ''
-              apiUrls:
-                authenticate: '/rest/usermanagement/1/authentication'
-                search: '/rest/usermanagement/1/search'
-                user: '/rest/usermanagement/1/user'
+              instance: 'my.instance'
 
-            entryPoint: WebRedirect
-            entryPointOptions:
-              routeValues:
-                '@package': Your.Package
-                '@controller': Authentication
-                '@action': login
-                '@format': html
+SimplyAdmire:
+  CrowdConnector:
+    instances:
+      'my.instance':
+        url: ''
+        password: '## DO NOT SET PASSWORD HERE! We do not want this in git! :) ##'
+        applicationName: ''
+        apiUrls:
+          authenticate: '/rest/usermanagement/1/authentication'
+          search: '/rest/usermanagement/1/search'
+          user: '/rest/usermanagement/1/user'

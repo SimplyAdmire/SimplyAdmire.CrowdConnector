@@ -13,15 +13,15 @@ class CrowdCommandController extends CommandController
 
     /**
      * @Flow\Inject
-     * @var CrowdApiService
-     */
-    protected $crowdApiService;
-
-    /**
-     * @Flow\Inject
      * @var AccountService
      */
     protected $accountService;
+
+    /**
+     * @Flow\InjectConfiguration(path="instances")
+     * @var array
+     */
+    protected $instances;
 
     /**
      * Import the users from Crowd
@@ -30,13 +30,22 @@ class CrowdCommandController extends CommandController
      */
     public function importUsersCommand()
     {
-        $crowdSearch = $this->crowdApiService->getAllUsers();
+        foreach ($this->instances as $instanceIdentifier => $instanceConfiguration) {
+            $this->importInstance($instanceIdentifier);
+        }
+    }
+
+    protected function importInstance($instanceIdentifier)
+    {
+        $crowdApiService = new CrowdApiService($instanceIdentifier);
+        $crowdSearch = $crowdApiService->getAllUsers();
+
         $statusCode = $crowdSearch['info']['http_code'];
         $users = $crowdSearch['users'];
         if ($statusCode === 200) {
             if (isset($users) && is_array($users)) {
                 foreach ($users as $user) {
-                    $userDetails = $this->crowdApiService->getUserInformation($user['name']);
+                    $userDetails = $crowdApiService->getUserInformation($user['name']);
                     if ($userDetails['info']['http_code'] === 200 && $userDetails['user']['active'] === true) {
                         $result = $this->accountService->createCrowdAccount($user['name'],
                             $userDetails['user']['first-name'], $userDetails['user']['last-name'],

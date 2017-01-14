@@ -46,10 +46,14 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
     protected $systemLogger;
 
     /**
-     * @Flow\Inject
      * @var CrowdApiService
      */
     protected $crowdApiService;
+
+    protected function initializeObject()
+    {
+        $this->crowdApiService = new CrowdApiService($this->options['instance']);
+    }
 
     /**
      * @param TokenInterface $authenticationToken
@@ -58,7 +62,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
     public function authenticate(TokenInterface $authenticationToken)
     {
         $credentials = $authenticationToken->getCredentials();
-        if (is_array($credentials) && isset($credentials['username']) && isset($credentials['password'])) {
+        if (\is_array($credentials) && isset($credentials['username']) && isset($credentials['password'])) {
             $providerName = $this->name;
             $authenticationResponse = $this->crowdApiService->getAuthenticationResponse($credentials);
 
