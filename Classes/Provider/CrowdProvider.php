@@ -3,7 +3,6 @@ namespace SimplyAdmire\CrowdConnector\Provider;
 
 use SimplyAdmire\CrowdConnector\Service\AccountService;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
-use TYPO3\Flow\Http\Response;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 use TYPO3\Flow\Security\Account;
 use TYPO3\Flow\Security\AccountRepository;
@@ -11,6 +10,9 @@ use TYPO3\Flow\Http\Client\CurlEngine as HttpClient;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Security\Authentication\Provider\PersistedUsernamePasswordProvider;
 use TYPO3\Flow\Security\Authentication\TokenInterface;
+use TYPO3\Flow\Security\Exception\NoSuchRoleException;
+use TYPO3\Flow\Security\Policy\PolicyService;
+use TYPO3\Flow\Utility\Arrays;
 
 class CrowdProvider extends PersistedUsernamePasswordProvider
 {
@@ -44,6 +46,18 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
      */
     protected $accountService;
 
+    /**
+     * @Flow\InjectConfiguration(path="instances")
+     * @var array
+     */
+    protected $instances;
+
+    /**
+     * @Flow\Inject
+     * @var PolicyService
+     */
+    protected $policyService;
+
     protected function initializeObject()
     {
         $this->crowdApiService = new CrowdApiService($this->options['instance']);
@@ -66,6 +80,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
 
         try {
             $this->crowdApiService->authenticate($credentials);
+            $userInformation = $this->crowdApiService->getUserInformation($username);
 
             if ($this->accountService->accountForUsernameExists($username, $this->name)) {
                 $account = $this->accountService->getAccountForUsername($username, $this->name);
@@ -73,12 +88,55 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
                 $account = $this->accountService->createAccount(
                     $username,
                     $this->name,
-                    $this->crowdApiService->getUserInformation($username)
+                    $userInformation
                 );
             }
 
             $authenticationToken->setAuthenticationStatus(TokenInterface::AUTHENTICATION_SUCCESSFUL);
             $authenticationToken->setAccount($account);
+
+            $defaultRoles = Arrays::getValueByPath($this->instances[$this->options['instance']], 'roles.default');
+            if (\is_array($defaultRoles)) {
+                foreach ($defaultRoles as $roleIdentifier)
+                {
+                    try {
+                        $role = $this->policyService->getRole($roleIdentifier);
+                        $account->addRole($role);
+                        $this->accountRepository->update($account);
+                        $this->persistenceManager->whitelistObject($account);
+                    } catch (NoSuchRoleException $exception) {
+                        $this->systemLogger->log('Role %s not found', [$roleIdentifier]);
+                    }
+                }
+            }
+
+            $roleMapping = Arrays::getValueByPath($this->instances[$this->options['instance']], 'roles.mapping');
+            if (\is_array($roleMapping)) {
+                $groupMembership = $this->crowdApiService->getUserGroupMembership($username);
+                $groupIdentifiers = \array_map(
+                    function($group) {
+                        return $group['name'];
+                    },
+                    $groupMembership['groups']
+                );
+
+                foreach ($roleMapping as $groupIdentifier => $roleIdentifiers) {
+                    if (!\in_array($groupIdentifier, $groupIdentifiers)) {
+                        continue;
+                    }
+
+                    foreach ($roleIdentifiers as $roleIdentifier) {
+                        try {
+                            $role = $this->policyService->getRole($roleIdentifier);
+                            $account->addRole($role);
+                            $this->accountRepository->update($account);
+                            $this->persistenceManager->whitelistObject($account);
+                        } catch (NoSuchRoleException $exception) {
+                            $this->systemLogger->log('Role %s not found', [$roleIdentifier]);
+                        }
+                    }
+                }
+            }
         } catch (\Exception $exception) {
             $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
         }

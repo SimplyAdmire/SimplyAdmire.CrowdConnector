@@ -11,10 +11,6 @@ use TYPO3\Flow\Utility\Now;
 class AccountService
 {
 
-    const RESULT_CODE_ACCOUNT_CREATED = 200;
-    const RESULT_CODE_EXISTING_ACCOUNT = 300;
-    const RESULT_CODE_ACCOUNT_UPDATED = 400;
-
     /**
      * @Flow\Inject
      * @var AccountRepository
@@ -26,12 +22,6 @@ class AccountService
      * @var PersistenceManager
      */
     protected $persistenceManager;
-
-    /**
-     * @Flow\Inject
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
 
     /**
      * @Flow\Inject(lazy=false)

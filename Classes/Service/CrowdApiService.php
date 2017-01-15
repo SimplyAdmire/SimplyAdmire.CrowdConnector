@@ -6,6 +6,9 @@ use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 use TYPO3\Flow\Utility\Arrays;
 
+/**
+ * https://developer.atlassian.com/display/CROWDDEV/Crowd+REST+Resources#CrowdRESTResources-UserResource
+ */
 class CrowdApiService
 {
 
@@ -50,9 +53,7 @@ class CrowdApiService
      */
     public function getAllUsers()
     {
-        $response = $this->doRequest(
-            $this->providerOptions['apiUrls']['search'] . '?entity-type=user'
-        );
+        $response = $this->doRequest('search?entity-type=user');
 
         if ($response->isSuccess()) {
             $data = $response->getData();
@@ -68,9 +69,18 @@ class CrowdApiService
      */
     public function getUserInformation($username)
     {
-        $response = $this->doRequest(
-            $this->providerOptions['apiUrls']['user'] . '?username=' . $username
-        );
+        $response = $this->doRequest('user?username=' . $username);
+
+        if ($response->isSuccess()) {
+            return $response->getData();
+        }
+
+        return [];
+    }
+
+    public function getUserGroupMembership($username)
+    {
+        $response = $this->doRequest('user/group/direct?username=' . $username);
 
         if ($response->isSuccess()) {
             return $response->getData();
@@ -82,12 +92,12 @@ class CrowdApiService
     /**
      * @param array $credentials
      * @throws \Exception
-     * @return array
+     * @return void
      */
     public function authenticate(array $credentials)
     {
         $response = $this->doRequest(
-            $this->providerOptions['apiUrls']['authenticate'] . '?username=' . $credentials['username'],
+            'authentication?username=' . $credentials['username'],
             ['value' => $credentials['password']]
         );
 
@@ -111,6 +121,14 @@ class CrowdApiService
     protected function doRequest($uri, array $data = [])
     {
         try {
+            $url = \sprintf(
+                '%s/rest/usermanagement/%s/%s',
+                \rtrim($this->providerOptions['url'], '/'),
+                $this->providerOptions['version'],
+                \ltrim($uri, '/')
+            );
+            $auth = $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'];
+
             $curlHandle = \curl_init();
 
             \curl_setopt_array(
@@ -120,8 +138,8 @@ class CrowdApiService
                         'Accept: application/json',
                         'Content-Type: application/json'
                     ],
-                    CURLOPT_URL => $this->providerOptions['url'] . $uri,
-                    CURLOPT_USERPWD => $this->providerOptions['applicationName'] . ':' . $this->providerOptions['password'],
+                    CURLOPT_URL => $url,
+                    CURLOPT_USERPWD => $auth,
                     CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_POST => 0
