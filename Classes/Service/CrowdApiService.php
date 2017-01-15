@@ -2,9 +2,9 @@
 namespace SimplyAdmire\CrowdConnector\Service;
 
 use SimplyAdmire\CrowdConnector\Crowd\Response;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Log\SystemLoggerInterface;
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Log\SystemLoggerInterface;
+use Neos\Utility\Arrays;
 
 /**
  * https://developer.atlassian.com/display/CROWDDEV/Crowd+REST+Resources#CrowdRESTResources-UserResource

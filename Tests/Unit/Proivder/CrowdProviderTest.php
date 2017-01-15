@@ -3,9 +3,9 @@ namespace SimplyAdmire\CrowdConnector\Tests\Unit\Provider;
 
 use SimplyAdmire\CrowdConnector\Provider\CrowdProvider;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
-use TYPO3\Flow\Security\Account;
-use TYPO3\Flow\Security\Authentication\TokenInterface;
-use TYPO3\Flow\Tests\UnitTestCase;
+use Neos\Flow\Security\Account;
+use Neos\Flow\Security\Authentication\TokenInterface;
+use Neos\Flow\Tests\UnitTestCase;
 
 class CrowdProviderTest extends UnitTestCase
 {
@@ -37,7 +37,7 @@ class CrowdProviderTest extends UnitTestCase
     public function testIfNoCredentialsCodeIsGivenWhenNoCredentialsAreSet()
     {
         $this->markTestSkipped('must be revisited.');
-        $mockTokenInterface = $this->getMock('TYPO3\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials'], [], '', false);
+        $mockTokenInterface = $this->getMock('Neos\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials'], [], '', false);
         $mockTokenInterface->expects($this->exactly(1))->method('getCredentials')->willReturn(null);
         $crowdApiService = $this->getMock('SimplyAdmire\CrowdConnector\Service\CrowdApiService', ['getAuthenticationResponse'], [], '', false);
         $this->inject($this->crowdProvider, 'crowdApiService', $crowdApiService);
@@ -50,7 +50,7 @@ class CrowdProviderTest extends UnitTestCase
      */
     public function testWrongCredentialsCodeIsSetIfNameDoesNotEqualResponseName()
     {
-        $mockTokenInterface = $this->getAccessibleMock('TYPO3\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials', 'setAuthenticationStatus'], [], '', false);
+        $mockTokenInterface = $this->getAccessibleMock('Neos\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials', 'setAuthenticationStatus'], [], '', false);
 
         $credentials = [
             'username' => 'foo',
@@ -79,8 +79,8 @@ class CrowdProviderTest extends UnitTestCase
      */
     public function testIfErrorCodeIsSetWhenUsernameIsCorrectButNoUserFound()
     {
-        $mockTokenInterface = $this->getAccessibleMock('TYPO3\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials', 'setAuthenticationStatus'], [], '', false);
-        $mockAccountRepository = $this->getMockBuilder('TYPO3\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
+        $mockTokenInterface = $this->getAccessibleMock('Neos\Flow\Security\Authentication\Token\UsernamePassword', ['getCredentials', 'setAuthenticationStatus'], [], '', false);
+        $mockAccountRepository = $this->getMockBuilder('Neos\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
         $credentials = [
             'username' => 'foo',
             'password' => 'bar'
@@ -109,8 +109,8 @@ class CrowdProviderTest extends UnitTestCase
      */
     public function testIfUserIsSetWhenUserIfFound()
     {
-        $mockTokenInterface = $this->getAccessibleMock('TYPO3\Flow\Security\Authentication\Token\UsernamePassword', ['setAccount', 'getCredentials', 'setAuthenticationStatus'], [], '', false);
-        $mockAccountRepository = $this->getMockBuilder('TYPO3\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
+        $mockTokenInterface = $this->getAccessibleMock('Neos\Flow\Security\Authentication\Token\UsernamePassword', ['setAccount', 'getCredentials', 'setAuthenticationStatus'], [], '', false);
+        $mockAccountRepository = $this->getMockBuilder('Neos\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
         $account = new Account();
 
         $credentials = [

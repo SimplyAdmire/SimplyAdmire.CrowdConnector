@@ -2,8 +2,8 @@
 namespace SimplyAdmire\CrowdConnector\Tests\Unit\Service;
 
 use SimplyAdmire\CrowdConnector\Service\AccountService;
-use TYPO3\Flow\Security\Account;
-use TYPO3\Flow\Tests\UnitTestCase;
+use Neos\Flow\Security\Account;
+use Neos\Flow\Tests\UnitTestCase;
 
 class AccountServiceTest extends UnitTestCase
 {
@@ -33,13 +33,13 @@ class AccountServiceTest extends UnitTestCase
     {
         $this->markTestSkipped('must be revisited.');
         $this->accountService = $this->getAccessibleMock('SimplyAdmire\CrowdConnector\Service\AccountService', ['getNewAccount', 'getNewPersonName', 'getNewElectronicAddress', 'getNewPerson'], [], '', false);
-        $mockAccountRepository = $this->getMockBuilder('TYPO3\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
-        $mockAccount = $this->getMock('TYPO3\Flow\Security\Account', ['setParty', 'setAccountIdentifier', 'setAuthenticationProviderName', 'setRoles', 'isRegistered'], [], '', false);
+        $mockAccountRepository = $this->getMockBuilder('Neos\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
+        $mockAccount = $this->getMock('Neos\Flow\Security\Account', ['setParty', 'setAccountIdentifier', 'setAuthenticationProviderName', 'setRoles', 'isRegistered'], [], '', false);
         $mockPersonName = $this->getMock('TYPO3\Party\Domain\Model\PersonName', ['setFirstName', 'setLastName'], [], '', false);
         $mockElectronicAddress = $this->getMock('TYPO3\Party\Domain\Model\ElectronicAddress', ['setIdentifier', 'setType'], [], '', false);
         $mockPerson = $this->getMockBuilder('TYPO3\Party\Domain\Model\Person')->disableOriginalConstructor()->getMock();
         $mockPartyRepository = $this->getMockBuilder('TYPO3\Party\Domain\Repository\PartyRepository')->disableOriginalConstructor()->getMock();
-        $mockPersistenceManager = $this->getMockBuilder('TYPO3\Flow\Persistence\Doctrine\PersistenceManager')->disableOriginalConstructor()->getMock();
+        $mockPersistenceManager = $this->getMockBuilder('Neos\Flow\Persistence\Doctrine\PersistenceManager')->disableOriginalConstructor()->getMock();
 
         $this->inject($this->accountService, 'accountRepository', $mockAccountRepository);
         $this->inject($this->accountService, 'partyRepository', $mockPartyRepository);
@@ -83,7 +83,7 @@ class AccountServiceTest extends UnitTestCase
      */
     public function testIfErrorMessageAndCodeAreGivenWhenTryingToCreateUserWithExistingUsername()
     {
-        $mockAccountRepository = $this->getMockBuilder('TYPO3\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
+        $mockAccountRepository = $this->getMockBuilder('Neos\Flow\Security\AccountRepository')->disableOriginalConstructor()->getMock();
         $this->inject($this->accountService, 'accountRepository', $mockAccountRepository);
         $account = new Account();
         $mockAccountRepository->expects($this->once())->method('findByAccountIdentifierAndAuthenticationProviderName')->willReturn($account);
@@ -113,13 +113,13 @@ class AccountServiceTest extends UnitTestCase
             ]
         ];
 
-        $mockPersistenceManager = $this->getMockBuilder('TYPO3\Flow\Persistence\Doctrine\PersistenceManager')->disableOriginalConstructor()->getMock();
+        $mockPersistenceManager = $this->getMockBuilder('Neos\Flow\Persistence\Doctrine\PersistenceManager')->disableOriginalConstructor()->getMock();
         $this->inject($this->accountService, 'persistenceManager', $mockPersistenceManager);
 
         $mockPartyRepository = $this->getMockBuilder('TYPO3\Party\Domain\Repository\PartyRepository')->disableOriginalConstructor()->getMock();
         $this->inject($this->accountService, 'partyRepository', $mockPartyRepository);
 
-        $mockAccount = $this->getMockBuilder('TYPO3\Flow\Security\Account')->disableOriginalConstructor()->getMock();
+        $mockAccount = $this->getMockBuilder('Neos\Flow\Security\Account')->disableOriginalConstructor()->getMock();
         $mockPerson = $this->getMock('TYPO3\Party\Domain\Model\Person');
         $mockPersonName = $this->getMock('TYPO3\Party\Domain\Model\PersonName');
         $mockEmail = $this->getMock('TYPO3\Party\Domain\Model\ElectronicAddress');

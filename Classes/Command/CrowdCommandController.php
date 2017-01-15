@@ -3,12 +3,12 @@ namespace SimplyAdmire\CrowdConnector\Command;
 
 use SimplyAdmire\CrowdConnector\Service\AccountService;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
-use TYPO3\Flow\Cli\CommandController;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Persistence\Doctrine\Query;
-use TYPO3\Flow\Security\Account;
-use TYPO3\Flow\Security\AccountRepository;
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Flow\Cli\CommandController;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Persistence\Doctrine\Query;
+use Neos\Flow\Security\Account;
+use Neos\Flow\Security\AccountRepository;
+use Neos\Utility\Arrays;
 
 class CrowdCommandController extends CommandController
 {

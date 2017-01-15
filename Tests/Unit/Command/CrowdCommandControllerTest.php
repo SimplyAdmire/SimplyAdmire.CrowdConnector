@@ -1,7 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Tests\Unit\Command;
 
-use TYPO3\Flow\Tests\UnitTestCase;
+use Neos\Flow\Tests\UnitTestCase;
 
 class CrowdCommandControllerTest extends UnitTestCase {
 
@@ -15,7 +15,7 @@ class CrowdCommandControllerTest extends UnitTestCase {
         $crowdApiServiceMock = $this->getMock('SimplyAdmire\CrowdConnector\Service\CrowdApiService', [], [], '', false);
         $accountServiceMock = $this->getMock('SimplyAdmire\CrowdConnector\Service\AccountService', [], [], '', false);
         $this->inject($crowdCommandControllerMock, 'accountService', $accountServiceMock);
-        $mockAccount = $this->getMock('TYPO3\Flow\Security\Account', [], [], '', false);
+        $mockAccount = $this->getMock('Neos\Flow\Security\Account', [], [], '', false);
 
         $searchResult = [
             'info' => [
@@ -67,7 +67,7 @@ class CrowdCommandControllerTest extends UnitTestCase {
         $this->inject($crowdCommandControllerMock, 'crowdApiService', $crowdApiServiceMock);
         $accountServiceMock = $this->getMock('SimplyAdmire\CrowdConnector\Service\AccountService', [], [], '', false);
         $this->inject($crowdCommandControllerMock, 'accountService', $accountServiceMock);
-        $mockAccount = $this->getMock('TYPO3\Flow\Security\Account', [], [], '', false);
+        $mockAccount = $this->getMock('Neos\Flow\Security\Account', [], [], '', false);
 
         $searchResult = [
             'info' => [

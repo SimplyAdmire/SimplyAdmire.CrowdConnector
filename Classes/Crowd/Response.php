@@ -1,7 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Crowd;
 
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Utility\Arrays;
 
 class Response
 {

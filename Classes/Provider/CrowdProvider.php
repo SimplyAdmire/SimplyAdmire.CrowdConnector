@@ -3,16 +3,16 @@ namespace SimplyAdmire\CrowdConnector\Provider;
 
 use SimplyAdmire\CrowdConnector\Service\AccountService;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
-use TYPO3\Flow\Log\SystemLoggerInterface;
-use TYPO3\Flow\Security\Account;
-use TYPO3\Flow\Security\AccountRepository;
-use TYPO3\Flow\Http\Client\CurlEngine as HttpClient;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Security\Authentication\Provider\PersistedUsernamePasswordProvider;
-use TYPO3\Flow\Security\Authentication\TokenInterface;
-use TYPO3\Flow\Security\Exception\NoSuchRoleException;
-use TYPO3\Flow\Security\Policy\PolicyService;
-use TYPO3\Flow\Utility\Arrays;
+use Neos\Flow\Log\SystemLoggerInterface;
+use Neos\Flow\Security\Account;
+use Neos\Flow\Security\AccountRepository;
+use Neos\Flow\Http\Client\CurlEngine as HttpClient;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Security\Authentication\Provider\PersistedUsernamePasswordProvider;
+use Neos\Flow\Security\Authentication\TokenInterface;
+use Neos\Flow\Security\Exception\NoSuchRoleException;
+use Neos\Flow\Security\Policy\PolicyService;
+use Neos\Utility\Arrays;
 
 class CrowdProvider extends PersistedUsernamePasswordProvider
 {
