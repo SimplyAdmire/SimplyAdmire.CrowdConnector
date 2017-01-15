@@ -102,8 +102,6 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
                     try {
                         $role = $this->policyService->getRole($roleIdentifier);
                         $account->addRole($role);
-                        $this->accountRepository->update($account);
-                        $this->persistenceManager->whitelistObject($account);
                     } catch (NoSuchRoleException $exception) {
                         $this->systemLogger->log('Role %s not found', [$roleIdentifier]);
                     }
@@ -129,37 +127,30 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
                         try {
                             $role = $this->policyService->getRole($roleIdentifier);
                             $account->addRole($role);
-                            $this->accountRepository->update($account);
-                            $this->persistenceManager->whitelistObject($account);
                         } catch (NoSuchRoleException $exception) {
                             $this->systemLogger->log('Role %s not found', [$roleIdentifier]);
                         }
                     }
                 }
             }
+
+            $this->emitAccountAuthenticated($account, $userInformation, $groupMembership);
+
+            $this->accountRepository->update($account);
+            $this->persistenceManager->whitelistObject($account);
         } catch (\Exception $exception) {
             $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
         }
     }
 
-
     /**
      * @param Account $account
-     * @param array $crowdData
+     * @param array $userInformation
+     * @param array $groupMembership
      * @return void
      * @Flow\Signal
      */
-    public function emitAccountAuthenticated(Account $account, array $crowdData)
-    {
-    }
-
-    /**
-     * @param Account $account
-     * @param array $crowdData
-     * @return void
-     * @Flow\Signal
-     */
-    public function emitRolesSet(Account $account, array $crowdData)
+    public function emitAccountAuthenticated(Account $account, array $userInformation, array $groupMembership)
     {
     }
 

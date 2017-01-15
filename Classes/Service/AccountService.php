@@ -2,7 +2,6 @@
 namespace SimplyAdmire\CrowdConnector\Service;
 
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Object\ObjectManagerInterface;
 use TYPO3\Flow\Persistence\Doctrine\PersistenceManager;
 use TYPO3\Flow\Security\Account;
 use TYPO3\Flow\Security\AccountRepository;
@@ -94,32 +93,52 @@ class AccountService
     public function deactivate(Account $account)
     {
         $account->setExpirationDate($this->now);
+        $this->emitAccountDeactivated($account);
         $this->accountRepository->update($account);
     }
 
     public function activate(Account $account)
     {
         $account->setExpirationDate(null);
+        $this->emitAccountActivated($account);
         $this->accountRepository->update($account);
     }
 
     /**
      * @param Account $account
-     * @param array $crowdData
+     * @param array $userInformation
      * @return void
      * @Flow\Signal
      */
-    public function emitAccountCreated(Account $account, array $crowdData)
+    public function emitAccountCreated(Account $account, array $userInformation)
     {
     }
 
     /**
      * @param Account $account
-     * @param array $crowdData
+     * @param array $userInformation
      * @return void
      * @Flow\Signal
      */
-    public function emitAccountUpdated(Account $account, array $crowdData)
+    public function emitAccountUpdated(Account $account, array $userInformation)
+    {
+    }
+
+    /**
+     * @param Account $account
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitAccountActivated(Account $account)
+    {
+    }
+
+    /**
+     * @param Account $account
+     * @return void
+     * @Flow\Signal
+     */
+    public function emitAccountDeactivated(Account $account)
     {
     }
 
