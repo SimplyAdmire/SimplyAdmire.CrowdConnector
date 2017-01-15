@@ -70,6 +70,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
     public function authenticate(TokenInterface $authenticationToken)
     {
         $credentials = $authenticationToken->getCredentials();
+        $instanceOptions = $this->instances[$this->options['instance']];
 
         if (!is_array($credentials) || !isset($credentials['username']) || !isset($credentials['password'])) {
             $authenticationToken->setAuthenticationStatus(TokenInterface::NO_CREDENTIALS_GIVEN);
@@ -95,7 +96,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
             $authenticationToken->setAuthenticationStatus(TokenInterface::AUTHENTICATION_SUCCESSFUL);
             $authenticationToken->setAccount($account);
 
-            $defaultRoles = Arrays::getValueByPath($this->instances[$this->options['instance']], 'roles.default');
+            $defaultRoles = Arrays::getValueByPath($instanceOptions, 'roles.default');
             if (\is_array($defaultRoles)) {
                 foreach ($defaultRoles as $roleIdentifier)
                 {
@@ -108,7 +109,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
                 }
             }
 
-            $roleMapping = Arrays::getValueByPath($this->instances[$this->options['instance']], 'roles.mapping');
+            $roleMapping = Arrays::getValueByPath($instanceOptions, 'roles.mapping');
             if (\is_array($roleMapping)) {
                 $groupMembership = $this->crowdApiService->getUserGroupMembership($username);
                 $groupIdentifiers = \array_map(
