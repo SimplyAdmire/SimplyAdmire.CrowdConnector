@@ -3,11 +3,16 @@
     "type": "typo3-flow-package",
     "description": "Connector to authenticate against Atlassian Crowd",
     "require": {
-        "neos/flow": "^3.3"
+        "neos/flow": "^4.0"
     },
     "autoload": {
         "psr-4": {
             "SimplyAdmire\\CrowdConnector\\": "Classes"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
         }
     }
 }
