@@ -44,11 +44,17 @@ class CrowdCommandController extends CommandController
                 continue;
             }
 
-            $this->importInstance($instanceIdentifier, $providerName);
+            $this->importInstance(
+                $instanceIdentifier,
+                $providerName,
+                [
+                    'createAccounts' => Arrays::getValueByPath($instanceConfiguration, 'import.createAccounts')
+                ]
+            );
         }
     }
 
-    protected function importInstance($instanceIdentifier, $providerName)
+    protected function importInstance($instanceIdentifier, $providerName, array $options)
     {
         $this->outputLine('Import %s for provider %s', [$instanceIdentifier, $providerName]);
 
@@ -75,10 +81,12 @@ class CrowdCommandController extends CommandController
                     }
 
                     $this->outputLine('Updated user %s', [$username]);
-                } else {
+                } elseif ($options['createAccounts'] === true) {
                     $this->accountService->createAccount($username, $providerName, $userDetails);
 
                     $this->outputLine('Created user %s', [$username]);
+                } else {
+                    $this->outputLine('Skipped user %s because account creation is disabled', [$username]);
                 }
             }
         }
