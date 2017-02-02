@@ -7,6 +7,9 @@ use Neos\Flow\Security\Account;
 use Neos\Flow\Security\AccountRepository;
 use Neos\Flow\Utility\Now;
 
+/**
+ * @Flow\Scope("singleton")
+ */
 class AccountService
 {
 
@@ -72,6 +75,7 @@ class AccountService
 
         $this->persistenceManager->whitelistObject($account);
         $this->accountRepository->add($account);
+        $this->persistenceManager->persistAll();
 
         $this->emitAccountCreated($account, $crowdData);
 
@@ -87,6 +91,10 @@ class AccountService
      */
     public function updateAccount(Account $account, array $crowdData)
     {
+        $this->accountRepository->update($account);
+        $this->persistenceManager->whitelistObject($account);
+        $this->persistenceManager->persistAll();
+
         $this->emitAccountUpdated($account, $crowdData);
     }
 

@@ -137,8 +137,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
 
             $this->emitAccountAuthenticated($account, $userInformation, $groupMembership);
 
-            $this->accountRepository->update($account);
-            $this->persistenceManager->whitelistObject($account);
+            $this->accountService->updateAccount($account, $userInformation);
         } catch (\Exception $exception) {
             $authenticationToken->setAuthenticationStatus(TokenInterface::WRONG_CREDENTIALS);
         }
