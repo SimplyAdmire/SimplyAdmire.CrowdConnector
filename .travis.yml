@@ -1,28 +1,30 @@
+---
+
 language: php
-php:
-  - 5.5
-  - 5.5.9
-  - 5.6
-  - 7.0
-  - hhvm
-matrix:
-  allow_failures:
-    - php: 7.0
-    - php: hhvm
-before_install:
-  - cd ..
-  - git clone https://github.com/neos/neos-base-distribution.git
-  - cd neos-base-distribution
-  - git checkout 2.0.0
-  - composer update
-install:
-  - mv ../SimplyAdmire.CrowdConnector Packages/Application
-before_script:
-  - echo 'date.timezone = "Europe/Amsterdam"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-script:
-  - bin/phpunit -c Packages/Application/SimplyAdmire.CrowdConnector/PhpUnit.xml
-  - bin/phpunit --stop-on-failure -c Packages/Application/SimplyAdmire.CrowdConnector/PhpUnit.xml --testsuite "CrowdConnector tests"
-notifications:
-  slack:
-    rooms:
-      secure: EhHOV1nwAUYDQt4XsEZFXD6OKX8dQS+pKVHwf2rWJqFKgkHiWcXmuO57G10Xi90z6iPRdU+9z8Rl4HH3r4U83d2a8pJpIyedzVXYu31ltM6Yjg/UbeTuvSGMq/OpIKQJekfD1EgKzQEjsQymUSIwHTKSSesk7lUxuc5WNEUyIsZL3R115cHBduuLwmCERmhZLdU2naUsI3/i0lqBuBHkBus+1oHQ7hMZAzkgtSpLNB2HQ4a/rESr4vrBz89qj+xAOoMsQY9YtRJtGb7+APTT1tDkn62X79fa4alNzpIFqG+QaBu8/vMq5A8OgkSYSFyyQ+4AyVKZB6T979t25kD+HCtrXDHkei951z6/Mbz+AezGueA1PrQ1NULSX709AN1yT0ROiRhHOHO9hcexHa3Djnd9+bcgGtfWEzhzaQHpDLS5uTA/F6Ju1j+7LkZe1B7K2QNUm6715NyZ+wqhTvGIt+pwz4SRivsd9oYgoAH6P195Pdgzad/ZxdxbMNlm0Ku59MtZ38VF1IsmLOts6to5Wls1D/Q+mVrXN+oxbksWCebBfDBJoXaOpS9k1f3uUdIT6Uhv/VGrh9M3aWLgMXg5Q01qT1pB9W9iVzCKP2MPUCzFPH3clwAdp56b7o3a4CMIV25z8gF+1WdTYxoXAaps/zS8G4hOnYjAA3Gop3dSKFI=
+#php:
+#  - 5.5
+#  - 5.5.9
+#  - 5.6
+#  - 7.0
+#  - hhvm
+#matrix:
+#  allow_failures:
+#    - php: 7.0
+#    - php: hhvm
+#before_install:
+#  - cd ..
+#  - git clone https://github.com/neos/neos-base-distribution.git
+#  - cd neos-base-distribution
+#  - git checkout 2.0.0
+#  - composer update
+#install:
+#  - mv ../SimplyAdmire.CrowdConnector Packages/Application
+#before_script:
+#  - echo 'date.timezone = "Europe/Amsterdam"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+#script:
+#  - bin/phpunit -c Packages/Application/SimplyAdmire.CrowdConnector/PhpUnit.xml
+#  - bin/phpunit --stop-on-failure -c Packages/Application/SimplyAdmire.CrowdConnector/PhpUnit.xml --testsuite "CrowdConnector tests"
+#notifications:
+#  slack:
+#    rooms:
+#      secure: EhHOV1nwAUYDQt4XsEZFXD6OKX8dQS+pKVHwf2rWJqFKgkHiWcXmuO57G10Xi90z6iPRdU+9z8Rl4HH3r4U83d2a8pJpIyedzVXYu31ltM6Yjg/UbeTuvSGMq/OpIKQJekfD1EgKzQEjsQymUSIwHTKSSesk7lUxuc5WNEUyIsZL3R115cHBduuLwmCERmhZLdU2naUsI3/i0lqBuBHkBus+1oHQ7hMZAzkgtSpLNB2HQ4a/rESr4vrBz89qj+xAOoMsQY9YtRJtGb7+APTT1tDkn62X79fa4alNzpIFqG+QaBu8/vMq5A8OgkSYSFyyQ+4AyVKZB6T979t25kD+HCtrXDHkei951z6/Mbz+AezGueA1PrQ1NULSX709AN1yT0ROiRhHOHO9hcexHa3Djnd9+bcgGtfWEzhzaQHpDLS5uTA/F6Ju1j+7LkZe1B7K2QNUm6715NyZ+wqhTvGIt+pwz4SRivsd9oYgoAH6P195Pdgzad/ZxdxbMNlm0Ku59MtZ38VF1IsmLOts6to5Wls1D/Q+mVrXN+oxbksWCebBfDBJoXaOpS9k1f3uUdIT6Uhv/VGrh9M3aWLgMXg5Q01qT1pB9W9iVzCKP2MPUCzFPH3clwAdp56b7o3a4CMIV25z8gF+1WdTYxoXAaps/zS8G4hOnYjAA3Gop3dSKFI=
