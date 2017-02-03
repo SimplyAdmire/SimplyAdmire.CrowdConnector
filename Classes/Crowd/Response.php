@@ -24,10 +24,18 @@ class Response
 
     public static function createFromResponseContent($responseBody, array $responseInfo)
     {
-        return new static(
-            \json_decode($responseBody, true),
-            $responseInfo
-        );
+        $statusCode = Arrays::getValueByPath($responseInfo, 'http_code');
+
+        if ($statusCode === 200) {
+            $responseBody = \json_decode($responseBody, true);
+            if (\is_array($responseBody)) {
+                return new static($responseBody, $responseInfo);
+            } else {
+                $statusCode = 500;
+            }
+        }
+
+        return new static([], ['http_code' => $statusCode]);
     }
 
     /**
