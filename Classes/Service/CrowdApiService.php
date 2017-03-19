@@ -106,6 +106,7 @@ class CrowdApiService
         }
 
         $data = $response->getData();
+
         $usernameInResponse = Arrays::getValueByPath($data, 'name');
         if ($usernameInResponse !== $credentials['username']) {
             throw new \Exception('Authentication failed');

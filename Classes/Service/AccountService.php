@@ -10,7 +10,7 @@ use Neos\Flow\Utility\Now;
 /**
  * @Flow\Scope("singleton")
  */
-class AccountService
+class AccountService implements AccountServiceInterface
 {
 
     /**
@@ -36,7 +36,7 @@ class AccountService
      * @throws |Exception
      * @return Account
      */
-    public function getAccountForUsername($username, $providerName)
+    public function getAccountForUsername(string $username, string $providerName): Account
     {
         $account = $this->accountRepository->findByAccountIdentifierAndAuthenticationProviderName(
             $username,
@@ -50,7 +50,7 @@ class AccountService
         return $account;
     }
 
-    public function accountForUsernameExists($username, $providerName)
+    public function accountForUsernameExists(string $username, string $providerName): bool
     {
         try {
             return $this->getAccountForUsername($username, $providerName) instanceof Account;
@@ -67,7 +67,7 @@ class AccountService
      * @param array $crowdData
      * @return string
      */
-    public function createAccount($username, $providerName, array $crowdData)
+    public function createAccount(string $username, string $providerName, array $crowdData): Account
     {
         $account = new Account();
         $account->setAccountIdentifier($username);

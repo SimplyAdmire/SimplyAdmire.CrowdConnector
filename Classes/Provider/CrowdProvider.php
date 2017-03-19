@@ -1,7 +1,7 @@
 <?php
 namespace SimplyAdmire\CrowdConnector\Provider;
 
-use SimplyAdmire\CrowdConnector\Service\AccountService;
+use SimplyAdmire\CrowdConnector\Service\AccountServiceInterface;
 use SimplyAdmire\CrowdConnector\Service\CrowdApiService;
 use Neos\Flow\Log\SystemLoggerInterface;
 use Neos\Flow\Security\Account;
@@ -42,7 +42,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
 
     /**
      * @Flow\Inject
-     * @var AccountService
+     * @var AccountServiceInterface
      */
     protected $accountService;
 
