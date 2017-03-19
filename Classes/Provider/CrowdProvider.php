@@ -109,6 +109,7 @@ class CrowdProvider extends PersistedUsernamePasswordProvider
                 }
             }
 
+            $groupMembership = [];
             $roleMapping = Arrays::getValueByPath($instanceOptions, 'roles.mapping');
             if (\is_array($roleMapping)) {
                 $groupMembership = $this->crowdApiService->getUserGroupMembership($username);
