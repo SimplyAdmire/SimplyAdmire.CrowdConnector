@@ -89,6 +89,17 @@ class CrowdApiService
         return [];
     }
 
+    public function requestNewPasswordLink($username)
+    {
+        $response = $this->doRequest('user/mail/password?username=' . $username, ['username' => $username]);
+
+        if ($response->isSuccess()) {
+            return $response->getData();
+        }
+
+        return [];
+    }
+
     /**
      * @param array $credentials
      * @throws \Exception
