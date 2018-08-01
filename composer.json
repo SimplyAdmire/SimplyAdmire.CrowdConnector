@@ -3,9 +3,9 @@
     "type": "typo3-flow-package",
     "description": "Connector to authenticate against Atlassian Crowd",
     "require": {
-        "neos/flow": "^4.0",
+        "neos/flow": "^5.0",
 
-        "php": ">=7.0.0"
+        "php": ">=7.1"
     },
     "autoload": {
         "psr-4": {
